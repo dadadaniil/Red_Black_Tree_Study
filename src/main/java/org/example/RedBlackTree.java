@@ -1,22 +1,22 @@
 package org.example;
 
-public class Node<T extends Comparable<T>> {
-    T value;
-    Node<T> parent;
-    Node<T> left;
-    Node<T> right;
-    boolean colour; // true-red, false-black
+public class RedBlackTree<T extends Comparable<T>> {
+    public T value;
+    public RedBlackTree<T> parent;
+    public RedBlackTree<T> left;
+    public RedBlackTree<T> right;
+    public boolean colour; // true-red, false-black
 
     public void insert(T key) {
-        Node<T> node = new Node<>(key);
+        RedBlackTree<T> node = new RedBlackTree<>(key);
         if (this.value == null) {
             this.value = key;
             this.colour = false;
             return;
         }
 
-        Node<T> current = this;
-        Node<T> parentNode = null;
+        RedBlackTree<T> current = this;
+        RedBlackTree<T> parentNode = null;
 
         while (current != null) {
             parentNode = current;
@@ -34,16 +34,15 @@ public class Node<T extends Comparable<T>> {
         } else {
             parentNode.right = node;
         }
-
         fixInsertionViolation(node);
     }
 
     public void delete(T key) {
-        Node<T> node = findNode(key);
+        RedBlackTree<T> node = findNode(key);
         if (node == null) return;
 
-        Node<T> y = node;
-        Node<T> x;
+        RedBlackTree<T> y = node;
+        RedBlackTree<T> x;
         boolean yOriginalColour = y.colour;
 
         if (node.left == null) {
@@ -74,8 +73,8 @@ public class Node<T extends Comparable<T>> {
         }
     }
 
-    private Node<T> findNode(T key) {
-        Node<T> current = this;
+    private RedBlackTree<T> findNode(T key) {
+        RedBlackTree<T> current = this;
         while (current != null && !key.equals(current.value)) {
             if (key.compareTo(current.value) < 0) {
                 current = current.left;
@@ -86,7 +85,7 @@ public class Node<T extends Comparable<T>> {
         return current;
     }
 
-    private void transplant(Node<T> u, Node<T> v) {
+    private void transplant(RedBlackTree<T> u, RedBlackTree<T> v) {
         if (u.parent == null) {
             this.value = (v != null) ? v.value : null;
             this.left = (v != null) ? v.left : null;
@@ -102,16 +101,15 @@ public class Node<T extends Comparable<T>> {
         }
     }
 
-    private Node<T> minimum(Node<T> node) {
+    private RedBlackTree<T> minimum(RedBlackTree<T> node) {
         while (node.left != null) {
             node = node.left;
         }
         return node;
     }
 
-
-    public void leftRotation(Node node) {
-        Node y = node.right;
+    public void leftRotation(RedBlackTree<T> node) {
+        RedBlackTree<T> y = node.right;
 
         node.right = y.left;
         if (y.left != null) {
@@ -130,8 +128,8 @@ public class Node<T extends Comparable<T>> {
         node.parent = y;
     }
 
-    public void rightRotation(Node node) {
-        Node y = node.left;
+    public void rightRotation(RedBlackTree<T> node) {
+        RedBlackTree<T> y = node.left;
         node.left = y.right;
 
         if (y.right != null) {
@@ -149,50 +147,50 @@ public class Node<T extends Comparable<T>> {
         node.parent = y;
     }
 
-    public boolean isHealthy(Node node) {
+    public boolean isHealthy(RedBlackTree<T> node) {
         return (redViolationsCheck(node) &&
             blackViolationCheck(node) &&
             blackRootCheck(node));
     }
 
-    private boolean redViolationsCheck(Node node) {
+    public boolean redViolationsCheck(RedBlackTree<T> node) {
         if (!node.colour) {
             return true;
         }
         return node.parent == null || !node.parent.colour;
     }
 
-
-    private boolean blackViolationCheck(Node node) {
-        if (node == null) return true;
-        return calculateBlackHeight(node) != -1;
+    public boolean blackViolationCheck(RedBlackTree<T> node) {
+        return node == null || calculateBlackHeight(node) != -1;
     }
 
-    private int calculateBlackHeight(Node node) {
+    private int calculateBlackHeight(RedBlackTree<T> node) {
         if (node == null) {
             return 1;
         }
+
         int leftHeight = calculateBlackHeight(node.left);
         int rightHeight = calculateBlackHeight(node.right);
 
-        if (rightHeight == -1 ||
-            (leftHeight != rightHeight)) {
+        if (leftHeight == -1 || rightHeight == -1 || leftHeight != rightHeight) {
             return -1;
         }
+
         return leftHeight + (node.colour ? 0 : 1);
     }
 
-    private boolean blackRootCheck(Node node) {
+
+    public boolean blackRootCheck(RedBlackTree<T> node) {
         while (node.parent != null) {
             node = node.parent;
         }
         return !node.colour;
     }
 
-    private void fixDeletionViolation(Node node) {
+    public void fixDeletionViolation(RedBlackTree<T> node) {
         while (node.parent != null && !node.colour) {
-            Node parentNode = node.parent;
-            Node sibling = (node == parentNode.left) ? parentNode.right : parentNode.left;
+            RedBlackTree<T> parentNode = node.parent;
+            RedBlackTree<T> sibling = (node == parentNode.left) ? parentNode.right : parentNode.left;
 
             if (sibling.colour) {
                 handleRedSibling(node, parentNode, sibling);
@@ -210,7 +208,7 @@ public class Node<T extends Comparable<T>> {
         node.colour = false;
     }
 
-    private void handleRedSibling(Node node, Node parent, Node sibling) {
+    public void handleRedSibling(RedBlackTree<T> node, RedBlackTree<T> parent, RedBlackTree<T> sibling) {
         sibling.colour = false;
         parent.colour = true;
         if (node == parent.left) {
@@ -220,11 +218,11 @@ public class Node<T extends Comparable<T>> {
         }
     }
 
-    private void handleBlackSiblingWithBlackChildren(Node node, Node sibling) {
+    public void handleBlackSiblingWithBlackChildren(RedBlackTree<T> node, RedBlackTree<T> sibling) {
         sibling.colour = true;
     }
 
-    private void handleBlackSiblingWithRedChild(Node node, Node parent, Node sibling) {
+    public void handleBlackSiblingWithRedChild(RedBlackTree<T> node, RedBlackTree<T> parent, RedBlackTree<T> sibling) {
         if (node == parent.left && (sibling.right == null || !sibling.right.colour)) {
             sibling.left.colour = false;
             sibling.colour = true;
@@ -248,40 +246,47 @@ public class Node<T extends Comparable<T>> {
         }
     }
 
-    private boolean isBlackWithBlackChildren(Node sibling) {
+    public boolean isBlackWithBlackChildren(RedBlackTree<T> sibling) {
         return sibling != null &&
             !sibling.colour &&
             (sibling.left == null || !sibling.left.colour) &&
             (sibling.right == null || !sibling.right.colour);
     }
 
-
-    private void fixInsertionViolation(Node node) {
+    public void fixInsertionViolation(RedBlackTree<T> node) {
+        // no red-red violations, exit
         if (redViolationsCheck(node)) {
             return;
         }
 
-        Node parentNode = node.parent;
-        Node grandparentNode = parentNode.parent;
-        Node uncleNode = (grandparentNode.left == parentNode) ? grandparentNode.right : grandparentNode.left;
+        RedBlackTree<T> parentNode = node.parent;
+        RedBlackTree<T> grandparentNode = parentNode.parent;
+        if (grandparentNode != null) {
+            RedBlackTree<T> uncleNode = (grandparentNode.left == parentNode) ? grandparentNode.right : grandparentNode.left;
 
-        if (uncleNode != null && uncleNode.colour) {
-            handleRedUncleCase(parentNode, grandparentNode, uncleNode);
-        } else if (isZigZag(node, parentNode, grandparentNode)) {
-            handleZigZagCase(node, parentNode, grandparentNode);
-        } else {
-            handleZigZigCase(node, parentNode, grandparentNode);
+            // Case 1: Parent and Uncle are both red (Recoloring Case)
+            if (uncleNode != null && uncleNode.colour) {
+                handleRedUncleCase(parentNode, grandparentNode, uncleNode);
+
+                // Case 2a: Zig-Zag pattern (Parent and Node are on opposite sides)
+            } else if (isZigZag(node, parentNode, grandparentNode)) {
+                handleZigZagCase(node, parentNode, grandparentNode);
+
+                // Case 2b: Zig-Zig pattern (Parent and Node are on the same side)
+            } else {
+                handleZigZigCase(node, parentNode, grandparentNode);
+            }
         }
     }
 
-    private void handleRedUncleCase(Node parent, Node grandparent, Node uncle) {
+    public void handleRedUncleCase(RedBlackTree<T> parent, RedBlackTree<T> grandparent, RedBlackTree<T> uncle) {
         parent.colour = false;
         uncle.colour = false;
         grandparent.colour = true;
         fixInsertionViolation(grandparent);
     }
 
-    private void handleZigZagCase(Node node, Node parent, Node grandparent) {
+    public void handleZigZagCase(RedBlackTree<T> node, RedBlackTree<T> parent, RedBlackTree<T> grandparent) {
         if (node == parent.right) {
             leftRotation(parent);
             node = node.left;
@@ -292,8 +297,7 @@ public class Node<T extends Comparable<T>> {
         handleZigZigCase(node, parent, grandparent);
     }
 
-
-    private void handleZigZigCase(Node node, Node parent, Node grandparent) {
+    public void handleZigZigCase(RedBlackTree<T> node, RedBlackTree<T> parent, RedBlackTree<T> grandparent) {
         parent.colour = false;
         grandparent.colour = true;
         if (parent == grandparent.left) {
@@ -303,29 +307,31 @@ public class Node<T extends Comparable<T>> {
         }
     }
 
-    private boolean isZigZag(Node node, Node parent, Node grandparent) {
+    private boolean isZigZag(RedBlackTree<T> node, RedBlackTree<T> parent, RedBlackTree<T> grandparent) {
         return (parent == grandparent.left && node == parent.right) ||
             (parent == grandparent.right && node == parent.left);
     }
 
     public String visualize() {
         StringBuilder sb = new StringBuilder();
-        visualizeHelper(this, "", true, sb);
+        visualizeHelper(this, sb, "", true);
         return sb.toString();
     }
 
-    private void visualizeHelper(Node<T> node, String prefix, boolean isTail, StringBuilder sb) {
+    private void visualizeHelper(RedBlackTree<T> node, StringBuilder sb, String prefix, boolean isTail) {
+        if (node == null) {
+            return;
+        }
         if (node.right != null) {
-            visualizeHelper(node.right, prefix + (isTail ? "│   " : "    "), false, sb);
+            visualizeHelper(node.right, sb, prefix + (isTail ? "│   " : "    "), false);
         }
         sb.append(prefix).append(isTail ? "└── " : "┌── ").append(node.value).append(node.colour ? " (R)" : " (B)").append("\n");
         if (node.left != null) {
-            visualizeHelper(node.left, prefix + (isTail ? "    " : "│   "), true, sb);
+            visualizeHelper(node.left, sb, prefix + (isTail ? "    " : "│   "), true);
         }
     }
 
-
-    public Node(T value) {
+    public RedBlackTree(T value) {
         this.value = value;
         this.parent = null;
         this.left = null;
@@ -333,7 +339,7 @@ public class Node<T extends Comparable<T>> {
         this.colour = true;
     }
 
-    public Node(T value, Node<T> parent, Node<T> left, Node<T> right, boolean colour) {
+    public RedBlackTree(T value, RedBlackTree<T> parent, RedBlackTree<T> left, RedBlackTree<T> right, boolean colour) {
         this.value = value;
         this.parent = parent;
         this.left = left;
@@ -341,6 +347,6 @@ public class Node<T extends Comparable<T>> {
         this.colour = colour;
     }
 
-    public Node() {
+    public RedBlackTree() {
     }
 }

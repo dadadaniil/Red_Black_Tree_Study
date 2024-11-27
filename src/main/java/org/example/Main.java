@@ -1,18 +1,23 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+
 public class Main {
-    public static void main(String[] args) {
-        Node<Integer> root = new Node<>(10);
-        root.insert(5);
-        root.insert(15);
-        root.insert(3);
-        root.insert(7);
-        root.insert(12);
-        root.insert(18);
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
 
-        System.out.println(root.visualize());
-
+        try {
+            RedBlackTree<Integer> root = new RedBlackTree<>(10);
+            root.insert(70);
+            root.insert(6);
+            root.insert(8);
+            root.insert(11);
+            root.insert(22);
+            System.out.println(root.visualize());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
