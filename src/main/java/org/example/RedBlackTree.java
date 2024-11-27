@@ -55,127 +55,140 @@ public class RedBlackTree {
             Node grandparent = parent.parent;
 
             if (parent == grandparent.left) {
-                Node uncle = grandparent.right;
-
-                if (uncle != null && uncle.color == RED) {
-                    parent.color = BLACK;
-                    uncle.color = BLACK;
-                    grandparent.color = RED;
-                    node = grandparent;
-                } else {
-                    if (node == parent.right) {
-                        node = parent;
-                        rotateLeft(node);
-                    }
-                    parent.color = BLACK;
-                    grandparent.color = RED;
-                    rotateRight(grandparent);
-                }
+                handleLeftSubtreeInsertion(node, parent, grandparent);
             } else {
-                Node uncle = grandparent.left;
-
-                if (uncle != null && uncle.color == RED) {
-                    parent.color = BLACK;
-                    uncle.color = BLACK;
-                    grandparent.color = RED;
-                    node = grandparent;
-                } else {
-                    if (node == parent.left) {
-                        node = parent;
-                        rotateRight(node);
-                    }
-                    parent.color = BLACK;
-                    grandparent.color = RED;
-                    rotateLeft(grandparent);
-                }
+                handleRightSubtreeInsertion(node, parent, grandparent);
             }
         }
         root.color = BLACK;
     }
 
+    private void handleLeftSubtreeInsertion(Node node, Node parent, Node grandparent) {
+        Node uncle = grandparent.right;
+
+        // Case 1: Uncle is red (Recoloring)
+        if (uncle != null && uncle.color == RED) {
+            recolorAfterInsertion(parent, uncle, grandparent);
+            return;
+        }
+
+        // Case 2a: Node is the parent's right child (Left Rotation)
+        if (node == parent.right) {
+            node = parent;
+            rotateLeft(node);
+        }
+
+        // Case 2b: Node is the parent's left child (Right Rotation)
+        parent.color = BLACK;
+        grandparent.color = RED;
+        rotateRight(grandparent);
+    }
+
+    private void handleRightSubtreeInsertion(Node node, Node parent, Node grandparent) {
+        Node uncle = grandparent.left;
+
+        // Case 1: Uncle is red (Recoloring)
+        if (uncle != null && uncle.color == RED) {
+            recolorAfterInsertion(parent, uncle, grandparent);
+            return;
+        }
+
+        // Case 2a: Node is the parent's left child (Right Rotation)
+        if (node == parent.left) {
+            node = parent;
+            rotateRight(node);
+        }
+
+        // Case 2b: Node is the parent's right child (Left Rotation)
+        parent.color = BLACK;
+        grandparent.color = RED;
+        rotateLeft(grandparent);
+    }
+
+    private void recolorAfterInsertion(Node parent, Node uncle, Node grandparent) {
+        parent.color = BLACK;
+        uncle.color = BLACK;
+        grandparent.color = RED;
+    }
+
+
     private void rotateLeft(Node node) {
         Node rightChild = node.right;
-        node.right = rightChild.left;
+        if (rightChild == null) return; // No rotation possible
 
-        if (rightChild.left != null) {
-            rightChild.left.parent = node;
-        }
+        // Step 1: Update node's right child to rightChild's left subtree
+        updateChildReference(node, rightChild.left, true);
 
-        rightChild.parent = node.parent;
+        // Step 2: Update parent of rightChild
+        updateParentReference(node, rightChild);
 
-        if (node.parent == null) {
-            root = rightChild;
-        } else if (node == node.parent.left) {
-            node.parent.left = rightChild;
-        } else {
-            node.parent.right = rightChild;
-        }
-
+        // Step 3: Reassign node as left child of rightChild
         rightChild.left = node;
         node.parent = rightChild;
+
+        // Step 4: Update root if needed
+        if (node == root) {
+            root = rightChild;
+        }
     }
 
     private void rotateRight(Node node) {
         Node leftChild = node.left;
-        node.left = leftChild.right;
+        if (leftChild == null) return; // No rotation possible
 
-        if (leftChild.right != null) {
-            leftChild.right.parent = node;
-        }
+        // Step 1: Update node's left child to leftChild's right subtree
+        updateChildReference(node, leftChild.right, false);
 
-        leftChild.parent = node.parent;
+        // Step 2: Update parent of leftChild
+        updateParentReference(node, leftChild);
 
-        if (node.parent == null) {
-            root = leftChild;
-        } else if (node == node.parent.left) {
-            node.parent.left = leftChild;
-        } else {
-            node.parent.right = leftChild;
-        }
-
+        // Step 3: Reassign node as right child of leftChild
         leftChild.right = node;
         node.parent = leftChild;
+
+        // Step 4: Update root if needed
+        if (node == root) {
+            root = leftChild;
+        }
     }
 
-    public void delete(int value) {
-        Node node = root;
-
-        while (node != null && node.value != value) {
-            if (value < node.value) {
-                node = node.left;
-            } else {
-                node = node.right;
-            }
+    private void updateChildReference(Node node, Node child, boolean isRight) {
+        if (isRight) {
+            node.right = child;
+        } else {
+            node.left = child;
         }
+        if (child != null) {
+            child.parent = node;
+        }
+    }
 
-        if (node == null) return;
+    private void updateParentReference(Node node, Node child) {
+        child.parent = node.parent;
+        if (node.parent == null) {
+            root = child;
+        } else if (node == node.parent.left) {
+            node.parent.left = child;
+        } else {
+            node.parent.right = child;
+        }
+    }
+
+
+    public void delete(int value) {
+        Node nodeToDelete = findNode(value);
+        if (nodeToDelete == null) return;
 
         Node movedUpNode;
-        boolean deletedNodeColor = node.color;
+        boolean deletedNodeColor = nodeToDelete.color;
 
-        if (node.left == null) {
-            movedUpNode = node.right;
-            replaceNode(node, node.right);
-        } else if (node.right == null) {
-            movedUpNode = node.left;
-            replaceNode(node, node.left);
+        if (nodeToDelete.left == null) {
+            movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.right);
+        } else if (nodeToDelete.right == null) {
+            movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.left);
         } else {
-            Node successor = findMinimum(node.right);
-            deletedNodeColor = successor.color;
-            movedUpNode = successor.right;
-
-            if (successor.parent == node) {
-                if (movedUpNode != null) movedUpNode.parent = successor;
-            } else {
-                replaceNode(successor, successor.right);
-                successor.right = node.right;
-                successor.right.parent = successor;
-            }
-
-            replaceNode(node, successor);
-            successor.left = node.left;
-            successor.left.parent = successor;
-            successor.color = node.color;
+            movedUpNode = handleTwoChildNodeDeletion(nodeToDelete);
+            deletedNodeColor = movedUpNode.color;
         }
 
         if (deletedNodeColor == BLACK) {
@@ -183,68 +196,136 @@ public class RedBlackTree {
         }
     }
 
-    private void fixDeletion(Node node) {
-        while (node != root && (node == null || node.color == BLACK)) {
-            if (node == node.parent.left) {
-                Node sibling = node.parent.right;
-
-                if (sibling.color == RED) {
-                    sibling.color = BLACK;
-                    node.parent.color = RED;
-                    rotateLeft(node.parent);
-                    sibling = node.parent.right;
-                }
-
-                if ((sibling.left == null || sibling.left.color == BLACK) &&
-                    (sibling.right == null || sibling.right.color == BLACK)) {
-                    sibling.color = RED;
-                    node = node.parent;
-                } else {
-                    if (sibling.right == null || sibling.right.color == BLACK) {
-                        sibling.left.color = BLACK;
-                        sibling.color = RED;
-                        rotateRight(sibling);
-                        sibling = node.parent.right;
-                    }
-
-                    sibling.color = node.parent.color;
-                    node.parent.color = BLACK;
-                    if (sibling.right != null) sibling.right.color = BLACK;
-                    rotateLeft(node.parent);
-                    node = root;
-                }
+    private Node findNode(int value) {
+        Node current = root;
+        while (current != null && current.value != value) {
+            if (value < current.value) {
+                current = current.left;
             } else {
-                Node sibling = node.parent.left;
-
-                if (sibling.color == RED) {
-                    sibling.color = BLACK;
-                    node.parent.color = RED;
-                    rotateRight(node.parent);
-                    sibling = node.parent.left;
-                }
-
-                if ((sibling.right == null || sibling.right.color == BLACK) &&
-                    (sibling.left == null || sibling.left.color == BLACK)) {
-                    sibling.color = RED;
-                    node = node.parent;
-                } else {
-                    if (sibling.left == null || sibling.left.color == BLACK) {
-                        sibling.right.color = BLACK;
-                        sibling.color = RED;
-                        rotateLeft(sibling);
-                        sibling = node.parent.left;
-                    }
-
-                    sibling.color = node.parent.color;
-                    node.parent.color = BLACK;
-                    if (sibling.left != null) sibling.left.color = BLACK;
-                    rotateRight(node.parent);
-                    node = root;
-                }
+                current = current.right;
             }
         }
-        if (node != null) node.color = BLACK;
+        return current;
     }
+
+    private Node handleSingleChildOrLeafNodeDeletion(Node nodeToDelete, Node child) {
+        replaceNode(nodeToDelete, child);
+        return child;
+    }
+
+    private Node handleTwoChildNodeDeletion(Node nodeToDelete) {
+        Node successor = findMinimum(nodeToDelete.right);
+        Node movedUpNode = successor.right;
+
+        if (successor.parent != nodeToDelete) {
+            replaceNode(successor, successor.right);
+            successor.right = nodeToDelete.right;
+            if (successor.right != null) {
+                successor.right.parent = successor;
+            }
+        }
+
+        replaceNode(nodeToDelete, successor);
+        successor.left = nodeToDelete.left;
+        if (successor.left != null) {
+            successor.left.parent = successor;
+        }
+        successor.color = nodeToDelete.color;
+
+        return movedUpNode;
+    }
+
+
+    private void fixDeletion(Node node) {
+        while (node != root && isBlack(node)) {
+            if (isLeftChild(node)) {
+                handleLeftSiblingCase(node);
+            } else {
+                handleRightSiblingCase(node);
+            }
+        }
+
+        if (node != null) {
+            node.color = BLACK;
+        }
+    }
+
+    private void handleLeftSiblingCase(Node node) {
+        Node sibling = node.parent.right;
+
+        if (sibling.color == RED) {
+            recolorAndRotateLeft(node.parent, sibling);
+            sibling = node.parent.right;
+        }
+
+        if (isBlack(sibling.left) && isBlack(sibling.right)) {
+            recolorSiblingRed(sibling);
+            node = node.parent;
+        } else {
+            if (isBlack(sibling.right)) {
+                recolorAndRotateRight(sibling, sibling.left);
+                sibling = node.parent.right;
+            }
+            recolorParentAndSibling(node.parent, sibling);
+            rotateLeft(node.parent);
+            node = root;
+        }
+    }
+
+    private void handleRightSiblingCase(Node node) {
+        Node sibling = node.parent.left;
+
+        if (sibling.color == RED) {
+            recolorAndRotateRight(node.parent, sibling);
+            sibling = node.parent.left;
+        }
+
+        if (isBlack(sibling.left) && isBlack(sibling.right)) {
+            recolorSiblingRed(sibling);
+            node = node.parent;
+        } else {
+            if (isBlack(sibling.left)) {
+                recolorAndRotateLeft(sibling, sibling.right);
+                sibling = node.parent.left;
+            }
+            recolorParentAndSibling(node.parent, sibling);
+            rotateRight(node.parent);
+            node = root;
+        }
+    }
+
+    private void recolorAndRotateLeft(Node parent, Node sibling) {
+        sibling.color = BLACK;
+        parent.color = RED;
+        rotateLeft(parent);
+    }
+
+    private void recolorAndRotateRight(Node parent, Node sibling) {
+        sibling.color = BLACK;
+        parent.color = RED;
+        rotateRight(parent);
+    }
+
+    private void recolorSiblingRed(Node sibling) {
+        sibling.color = RED;
+    }
+
+    private void recolorParentAndSibling(Node parent, Node sibling) {
+        sibling.color = parent.color;
+        parent.color = BLACK;
+        if (sibling.right != null) {
+            sibling.right.color = BLACK;
+        }
+    }
+
+    private boolean isBlack(Node node) {
+        return node == null || node.color == BLACK;
+    }
+
+    private boolean isLeftChild(Node node) {
+        return node == node.parent.left;
+    }
+
 
     private void replaceNode(Node oldNode, Node newNode) {
         if (oldNode.parent == null) {
