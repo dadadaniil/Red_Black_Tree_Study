@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'org.example'
@@ -16,4 +17,14 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass = 'org.example.Main'
+}
+
+tasks.register('runWithPath', JavaExec) {
+    mainClass = 'org.example.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args project.hasProperty('path') ? project.property('path') : 'unknown/path'
 }

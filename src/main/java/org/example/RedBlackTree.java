@@ -1,20 +1,44 @@
 package org.example;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class RedBlackTree {
 
-    private static final boolean RED = false;
-    private static final boolean BLACK = true;
+    public static final boolean RED = false;
+    public static final boolean BLACK = true;
 
-    private Node root;
+    public Node root;
 
-    private static class Node {
+
+
+    public static class Node {
         int value;
-        boolean color;
-        Node left, right, parent;
+        public boolean color;
+        public Node left;
+        public Node right;
+        public Node parent;
 
-        Node(int value) {
+        public Node(int value) {
             this.value = value;
             this.color = RED; // New nodes are always red
+        }
+    }
+
+    public void createTreeFromFile(String filePath) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                try {
+                    int value = Integer.parseInt(line.trim());
+                    insert(value);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid number format in file: " + line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -49,7 +73,7 @@ public class RedBlackTree {
         fixInsertion(newNode);
     }
 
-    private void fixInsertion(Node node) {
+    void fixInsertion(Node node) {
         while (node != root && node.parent.color == RED) {
             Node parent = node.parent;
             Node grandparent = parent.parent;
@@ -112,7 +136,7 @@ public class RedBlackTree {
     }
 
 
-    private void rotateLeft(Node node) {
+    public void rotateLeft(Node node) {
         Node rightChild = node.right;
         if (rightChild == null) return; // No rotation possible
 
@@ -132,7 +156,7 @@ public class RedBlackTree {
         }
     }
 
-    private void rotateRight(Node node) {
+    public void rotateRight(Node node) {
         Node leftChild = node.left;
         if (leftChild == null) return; // No rotation possible
 
@@ -310,7 +334,7 @@ public class RedBlackTree {
         sibling.color = RED;
     }
 
-    private void recolorParentAndSibling(Node parent, Node sibling) {
+    public void recolorParentAndSibling(Node parent, Node sibling) {
         sibling.color = parent.color;
         parent.color = BLACK;
         if (sibling.right != null) {
@@ -318,16 +342,16 @@ public class RedBlackTree {
         }
     }
 
-    private boolean isBlack(Node node) {
+    public boolean isBlack(Node node) {
         return node == null || node.color == BLACK;
     }
 
-    private boolean isLeftChild(Node node) {
+    public boolean isLeftChild(Node node) {
         return node == node.parent.left;
     }
 
 
-    private void replaceNode(Node oldNode, Node newNode) {
+    public void replaceNode(Node oldNode, Node newNode) {
         if (oldNode.parent == null) {
             root = newNode;
         } else if (oldNode == oldNode.parent.left) {
@@ -341,7 +365,7 @@ public class RedBlackTree {
         }
     }
 
-    private Node findMinimum(Node node) {
+    public Node findMinimum(Node node) {
         while (node.left != null) {
             node = node.left;
         }
