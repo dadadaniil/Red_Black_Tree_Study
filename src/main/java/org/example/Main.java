@@ -15,12 +15,13 @@ public class Main {
         if (args.length > 0) {
             path = args[0];
         }
+        log.info(path);
 
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         RedBlackTree<Integer> intTree = createTreeFromFile(path); // T = Integer
 
-        System.out.println("ларвпждлврадл");
-        log.info(intTree);
-        log.info("pgiopsdijgipo");
+        log.info("Using path: {}", path);
+
+        System.out.println(intTree.visualize());
     }
 }
