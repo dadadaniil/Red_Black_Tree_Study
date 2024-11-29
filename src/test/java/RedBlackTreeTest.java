@@ -1,4 +1,5 @@
 import org.example.RedBlackTree;
+import org.example.node.Node;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,9 +8,9 @@ class RedBlackTreeTest {
     @Test
     void testRotateLeft() {
         RedBlackTree tree = new RedBlackTree();
-        RedBlackTree.Node root = new RedBlackTree.Node(10);
-        RedBlackTree.Node rightChild = new RedBlackTree.Node(20);
-        RedBlackTree.Node rightLeftChild = new RedBlackTree.Node(15);
+        Node root = new Node(10);
+        Node rightChild = new Node(20);
+        Node rightLeftChild = new Node(15);
 
         root.right = rightChild;
         rightChild.parent = root;
@@ -28,9 +29,9 @@ class RedBlackTreeTest {
     @Test
     void testRotateRight() {
         RedBlackTree tree = new RedBlackTree();
-        RedBlackTree.Node root = new RedBlackTree.Node(20);
-        RedBlackTree.Node leftChild = new RedBlackTree.Node(10);
-        RedBlackTree.Node leftRightChild = new RedBlackTree.Node(15);
+        Node root = new Node(20);
+        Node leftChild = new Node(10);
+        Node leftRightChild = new Node(15);
 
         root.left = leftChild;
         leftChild.parent = root;
@@ -49,9 +50,9 @@ class RedBlackTreeTest {
     @Test
     void testRecolorParentAndSibling() {
         RedBlackTree tree = new RedBlackTree();
-        RedBlackTree.Node parent = new RedBlackTree.Node(10);
-        RedBlackTree.Node sibling = new RedBlackTree.Node(20);
-        RedBlackTree.Node siblingRight = new RedBlackTree.Node(30);
+        Node parent = new Node(10);
+        Node sibling = new Node(20);
+        Node siblingRight = new Node(30);
 
         parent.color = RedBlackTree.BLACK;
         sibling.color = RedBlackTree.RED;
@@ -67,9 +68,9 @@ class RedBlackTreeTest {
     @Test
     void testIsBlack() {
         RedBlackTree tree = new RedBlackTree();
-        RedBlackTree.Node blackNode = new RedBlackTree.Node(10);
+        Node blackNode = new Node(10);
         blackNode.color = RedBlackTree.BLACK;
-        RedBlackTree.Node redNode = new RedBlackTree.Node(20);
+        Node redNode = new Node(20);
         redNode.color = RedBlackTree.RED;
 
         assertTrue(tree.isBlack(blackNode));
@@ -80,9 +81,9 @@ class RedBlackTreeTest {
     @Test
     void testIsLeftChild() {
         RedBlackTree tree = new RedBlackTree();
-        RedBlackTree.Node parent = new RedBlackTree.Node(10);
-        RedBlackTree.Node leftChild = new RedBlackTree.Node(5);
-        RedBlackTree.Node rightChild = new RedBlackTree.Node(15);
+        Node parent = new Node(10);
+        Node leftChild = new Node(5);
+        Node rightChild = new Node(15);
 
         parent.left = leftChild;
         parent.right = rightChild;
@@ -96,9 +97,9 @@ class RedBlackTreeTest {
     @Test
     void testReplaceNode() {
         RedBlackTree tree = new RedBlackTree();
-        RedBlackTree.Node oldNode = new RedBlackTree.Node(10);
-        RedBlackTree.Node newNode = new RedBlackTree.Node(20);
-        RedBlackTree.Node parent = new RedBlackTree.Node(30);
+        Node oldNode = new Node(10);
+        Node newNode = new Node(20);
+        Node parent = new Node(30);
 
         oldNode.parent = parent;
         parent.left = oldNode;
@@ -112,10 +113,10 @@ class RedBlackTreeTest {
     @Test
     void testFindMinimum() {
         RedBlackTree tree = new RedBlackTree();
-        RedBlackTree.Node root = new RedBlackTree.Node(10);
-        RedBlackTree.Node left = new RedBlackTree.Node(5);
-        RedBlackTree.Node right = new RedBlackTree.Node(15);
-        RedBlackTree.Node leftLeft = new RedBlackTree.Node(2);
+        Node root = new Node(10);
+        Node left = new Node(5);
+        Node right = new Node(15);
+        Node leftLeft = new Node(2);
 
         root.left = left;
         root.right = right;

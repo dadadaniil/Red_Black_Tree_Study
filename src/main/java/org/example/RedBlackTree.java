@@ -1,82 +1,98 @@
 package org.example;
 
+import lombok.extern.log4j.Log4j2;
+import org.example.node.Node;
+import org.example.tree.Tree;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class RedBlackTree {
+@Log4j2
+public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
 
     public static final boolean RED = false;
     public static final boolean BLACK = true;
 
-    public Node root;
+    public Node<T> root;
 
-
-
-    public static class Node {
-        int value;
-        public boolean color;
-        public Node left;
-        public Node right;
-        public Node parent;
-
-        public Node(int value) {
-            this.value = value;
-            this.color = RED; // New nodes are always red
-        }
-    }
-
-    public void createTreeFromFile(String filePath) {
+    public static <T extends Comparable<T>> RedBlackTree<T> createTreeFromFile(String filePath) {
+        RedBlackTree<T> tree = new RedBlackTree<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
-                try {
-                    int value = Integer.parseInt(line.trim());
-                    insert(value);
-                } catch (NumberFormatException e) {
-                    System.err.println("Invalid number format in file: " + line);
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    try {
+                        @SuppressWarnings("unchecked")
+                        T value = (T) parseValue(line);
+                        tree.insert(value);
+                    } catch (ClassCastException | NumberFormatException e) {
+                        log.error("Invalid format in file: {}", line);
+                    }
                 }
             }
         } catch (IOException e) {
+            log.error("Error reading file: {}", filePath);
             e.printStackTrace();
+        }
+        return tree;
+    }
+
+    private static Object parseValue(String line) {
+        if (line.matches("-?\\d+")) {
+            return Integer.parseInt(line); // Parse as Integer
+        } else if (line.matches("-?\\d*\\.\\d+")) {
+            return Double.parseDouble(line); // Parse as Double
+        } else {
+            return line;
         }
     }
 
-    public void insert(int value) {
-        Node newNode = new Node(value);
+
+    @Override
+    public void insert(T value) {
+        Node<T> newNode = new Node<>(value);
         if (root == null) {
             root = newNode;
             root.color = BLACK;
             return;
         }
 
-        Node current = root, parent = null;
+        Node<T> current = root, parent = null;
 
         while (current != null) {
             parent = current;
-            if (value < current.value) {
+
+            // Use compareTo for comparisons
+            int comparison = value.compareTo(current.value);
+
+            if (comparison < 0) {
                 current = current.left;
-            } else if (value > current.value) {
+            } else if (comparison > 0) {
                 current = current.right;
             } else {
                 return; // Ignore duplicates
             }
         }
 
+        // Attach the new node to its parent
         newNode.parent = parent;
-        if (value < parent.value) {
+        if (value.compareTo(parent.value) < 0) {
             parent.left = newNode;
         } else {
             parent.right = newNode;
         }
 
+        // Fix Red-Black Tree properties
         fixInsertion(newNode);
     }
 
-    void fixInsertion(Node node) {
+
+    void fixInsertion(Node<T> node) {
         while (node != root && node.parent.color == RED) {
-            Node parent = node.parent;
-            Node grandparent = parent.parent;
+            Node<T> parent = node.parent;
+            Node<T> grandparent = parent.parent;
 
             if (parent == grandparent.left) {
                 handleLeftSubtreeInsertion(node, parent, grandparent);
@@ -87,8 +103,8 @@ public class RedBlackTree {
         root.color = BLACK;
     }
 
-    private void handleLeftSubtreeInsertion(Node node, Node parent, Node grandparent) {
-        Node uncle = grandparent.right;
+    private void handleLeftSubtreeInsertion(Node<T> node, Node<T> parent, Node<T> grandparent) {
+        Node<T> uncle = grandparent.right;
 
         // Case 1: Uncle is red (Recoloring)
         if (uncle != null && uncle.color == RED) {
@@ -108,8 +124,8 @@ public class RedBlackTree {
         rotateRight(grandparent);
     }
 
-    private void handleRightSubtreeInsertion(Node node, Node parent, Node grandparent) {
-        Node uncle = grandparent.left;
+    private void handleRightSubtreeInsertion(Node<T> node, Node<T> parent, Node<T> grandparent) {
+        Node<T> uncle = grandparent.left;
 
         // Case 1: Uncle is red (Recoloring)
         if (uncle != null && uncle.color == RED) {
@@ -129,15 +145,15 @@ public class RedBlackTree {
         rotateLeft(grandparent);
     }
 
-    private void recolorAfterInsertion(Node parent, Node uncle, Node grandparent) {
+    private void recolorAfterInsertion(Node<T> parent, Node<T> uncle, Node<T> grandparent) {
         parent.color = BLACK;
         uncle.color = BLACK;
         grandparent.color = RED;
     }
 
 
-    public void rotateLeft(Node node) {
-        Node rightChild = node.right;
+    public void rotateLeft(Node<T> node) {
+        Node<T> rightChild = node.right;
         if (rightChild == null) return; // No rotation possible
 
         // Step 1: Update node's right child to rightChild's left subtree
@@ -156,8 +172,8 @@ public class RedBlackTree {
         }
     }
 
-    public void rotateRight(Node node) {
-        Node leftChild = node.left;
+    public void rotateRight(Node<T> node) {
+        Node<T> leftChild = node.left;
         if (leftChild == null) return; // No rotation possible
 
         // Step 1: Update node's left child to leftChild's right subtree
@@ -176,7 +192,7 @@ public class RedBlackTree {
         }
     }
 
-    private void updateChildReference(Node node, Node child, boolean isRight) {
+    private void updateChildReference(Node<T> node, Node<T> child, boolean isRight) {
         if (isRight) {
             node.right = child;
         } else {
@@ -187,7 +203,7 @@ public class RedBlackTree {
         }
     }
 
-    private void updateParentReference(Node node, Node child) {
+    private void updateParentReference(Node<T> node, Node<T> child) {
         child.parent = node.parent;
         if (node.parent == null) {
             root = child;
@@ -198,12 +214,12 @@ public class RedBlackTree {
         }
     }
 
-
-    public void delete(int value) {
-        Node nodeToDelete = findNode(value);
+    @Override
+    public void delete(T value) {
+        Node<T> nodeToDelete = search(value);
         if (nodeToDelete == null) return;
 
-        Node movedUpNode;
+        Node<T> movedUpNode;
         boolean deletedNodeColor = nodeToDelete.color;
 
         if (nodeToDelete.left == null) {
@@ -220,10 +236,11 @@ public class RedBlackTree {
         }
     }
 
-    private Node findNode(int value) {
-        Node current = root;
-        while (current != null && current.value != value) {
-            if (value < current.value) {
+    @Override
+    public Node<T> search(T value) {
+        Node<T> current = root;
+        while (current != null && !current.value.equals(value)) {
+            if (value.compareTo(current.value) < 0) { // Use compareTo for comparison
                 current = current.left;
             } else {
                 current = current.right;
@@ -232,14 +249,14 @@ public class RedBlackTree {
         return current;
     }
 
-    private Node handleSingleChildOrLeafNodeDeletion(Node nodeToDelete, Node child) {
+    private Node<T> handleSingleChildOrLeafNodeDeletion(Node<T> nodeToDelete, Node<T> child) {
         replaceNode(nodeToDelete, child);
         return child;
     }
 
-    private Node handleTwoChildNodeDeletion(Node nodeToDelete) {
-        Node successor = findMinimum(nodeToDelete.right);
-        Node movedUpNode = successor.right;
+    private Node<T> handleTwoChildNodeDeletion(Node<T> nodeToDelete) {
+        Node<T> successor = findMinimum(nodeToDelete.right);
+        Node<T> movedUpNode = successor.right;
 
         if (successor.parent != nodeToDelete) {
             replaceNode(successor, successor.right);
@@ -260,7 +277,7 @@ public class RedBlackTree {
     }
 
 
-    private void fixDeletion(Node node) {
+    private void fixDeletion(Node<T> node) {
         while (node != root && isBlack(node)) {
             if (isLeftChild(node)) {
                 handleLeftSiblingCase(node);
@@ -274,8 +291,8 @@ public class RedBlackTree {
         }
     }
 
-    private void handleLeftSiblingCase(Node node) {
-        Node sibling = node.parent.right;
+    private void handleLeftSiblingCase(Node<T> node) {
+        Node<T> sibling = node.parent.right;
 
         if (sibling.color == RED) {
             recolorAndRotateLeft(node.parent, sibling);
@@ -296,8 +313,8 @@ public class RedBlackTree {
         }
     }
 
-    private void handleRightSiblingCase(Node node) {
-        Node sibling = node.parent.left;
+    private void handleRightSiblingCase(Node<T> node) {
+        Node<T> sibling = node.parent.left;
 
         if (sibling.color == RED) {
             recolorAndRotateRight(node.parent, sibling);
@@ -318,23 +335,23 @@ public class RedBlackTree {
         }
     }
 
-    private void recolorAndRotateLeft(Node parent, Node sibling) {
+    private void recolorAndRotateLeft(Node<T> parent, Node<T> sibling) {
         sibling.color = BLACK;
         parent.color = RED;
         rotateLeft(parent);
     }
 
-    private void recolorAndRotateRight(Node parent, Node sibling) {
+    private void recolorAndRotateRight(Node<T> parent, Node<T> sibling) {
         sibling.color = BLACK;
         parent.color = RED;
         rotateRight(parent);
     }
 
-    private void recolorSiblingRed(Node sibling) {
+    private void recolorSiblingRed(Node<T> sibling) {
         sibling.color = RED;
     }
 
-    public void recolorParentAndSibling(Node parent, Node sibling) {
+    public void recolorParentAndSibling(Node<T> parent, Node<T> sibling) {
         sibling.color = parent.color;
         parent.color = BLACK;
         if (sibling.right != null) {
@@ -342,16 +359,16 @@ public class RedBlackTree {
         }
     }
 
-    public boolean isBlack(Node node) {
+    public boolean isBlack(Node<T> node) {
         return node == null || node.color == BLACK;
     }
 
-    public boolean isLeftChild(Node node) {
+    public boolean isLeftChild(Node<T> node) {
         return node == node.parent.left;
     }
 
 
-    public void replaceNode(Node oldNode, Node newNode) {
+    public void replaceNode(Node<T> oldNode, Node<T> newNode) {
         if (oldNode.parent == null) {
             root = newNode;
         } else if (oldNode == oldNode.parent.left) {
@@ -365,7 +382,7 @@ public class RedBlackTree {
         }
     }
 
-    public Node findMinimum(Node node) {
+    public Node<T> findMinimum(Node<T> node) {
         while (node.left != null) {
             node = node.left;
         }
@@ -378,7 +395,7 @@ public class RedBlackTree {
         return sb.toString();
     }
 
-    private void visualizeHelper(Node node, StringBuilder sb, String prefix, boolean isTail) {
+    private void visualizeHelper(Node<T> node, StringBuilder sb, String prefix, boolean isTail) {
         if (node == null) return;
 
         if (node.right != null) {
@@ -391,5 +408,4 @@ public class RedBlackTree {
             visualizeHelper(node.left, sb, prefix + (isTail ? "    " : "│   "), true);
         }
     }
-
 }
