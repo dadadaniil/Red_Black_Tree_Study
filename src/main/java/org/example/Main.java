@@ -16,7 +16,7 @@ public class Main {
         }
         log.info(path);
 
-        RedBlackTree<Integer> intTree = createTreeFromFile(path); // T = Integer
+        RedBlackTree<Integer> intTree = createTreeFromFile(path);
         TreeUtils.printTree(intTree);
     }
 }
