@@ -3,6 +3,8 @@ package org.example.tree;
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
 
+import java.util.Optional;
+
 @Log4j2
 public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<T> {
 
@@ -154,8 +156,9 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
 
     @Override
     public void delete(T value) {
-        Node<T> nodeToDelete = search(value);
-        if (nodeToDelete == null) return;
+        Optional<Node<T>> optionalNode = search(value);
+        if (optionalNode.isEmpty()) return;
+        Node<T> nodeToDelete = optionalNode.get();
 
         Node<T> movedUpNode;
         boolean deletedNodeColor = nodeToDelete.color;
@@ -175,16 +178,16 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
     }
 
     @Override
-    public Node<T> search(T value) {
+    public Optional<Node<T>> search(T value) {
         Node<T> current = root;
         while (current != null && !current.value.equals(value)) {
-            if (value.compareTo(current.value) < 0) { // Use compareTo for comparison
+            if (value.compareTo(current.value) < 0) {
                 current = current.left;
             } else {
                 current = current.right;
             }
         }
-        return current;
+        return Optional.ofNullable(current);
     }
 
     private Node<T> handleSingleChildOrLeafNodeDeletion(Node<T> nodeToDelete, Node<T> child) {

@@ -14,7 +14,7 @@ public class Main {
         if (args.length > 0) {
             path = args[0];
         }
-        log.info(path);
+        log.info("Creating tree from file by path: {}", path);
 
         RedBlackTree<Integer> intTree = createTreeFromFile(path);
         TreeUtils.printTree(intTree);
