@@ -14,33 +14,33 @@ public class TreeUtils {
     public static <T extends Comparable<T>> RedBlackTree<T> createTreeFromFile(String filePath) {
         RedBlackTree<T> tree = new RedBlackTree<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (!line.isEmpty()) {
-                    try {
-                        @SuppressWarnings("unchecked")
-                        T value = (T) parseValue(line);
-                        tree.insert(value);
-                    } catch (ClassCastException | NumberFormatException e) {
-                        log.error("Invalid format in file: {}", line);
-                    }
-                }
-            }
+            br.lines()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .forEach(line -> insertValueIntoTree(tree, line));
         } catch (IOException e) {
-            log.error("Error reading file: {}", filePath);
-            e.printStackTrace();
+            log.error("Error reading file: {}", filePath, e);
         }
         return tree;
     }
 
-    private static Object parseValue(String line) {
+    private static <T extends Comparable<T>> void insertValueIntoTree(RedBlackTree<T> tree, String line) {
+        try {
+            T value = parseValue(line);
+            tree.insert(value);
+        } catch (ClassCastException | NumberFormatException e) {
+            log.error("Invalid format in file: {}", line, e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Comparable<T>> T parseValue(String line) {
         if (line.matches("-?\\d+")) {
-            return Integer.parseInt(line); // Parse as Integer
+            return (T) Integer.valueOf(line);
         } else if (line.matches("-?\\d*\\.\\d+")) {
-            return Double.parseDouble(line); // Parse as Double
+            return (T) Double.valueOf(line);
         } else {
-            return line;
+            return (T) line;
         }
     }
 

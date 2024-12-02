@@ -2,6 +2,7 @@ package org.example.tree;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
+import org.example.tree.traversal.TraversalStrategy;
 
 @Log4j2
 public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
@@ -351,28 +352,10 @@ public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
         return node;
     }
 
+    public void traverse(TraversalStrategy<T> strategy) {
+        if (root != null) {
+            strategy.traverse(root);
+        }
+    }
 
-//    public static <T extends Comparable<T>> void  printTree(RedBlackTree<T> redBlackTree) {
-//        StringBuilder sb = new StringBuilder();
-//        redBlackTree.visualizeHelper(redBlackTree.root, sb, "", true);
-//        System.out.println(sb);
-//    }
-//
-//    private void visualizeHelper(Node<T> node, StringBuilder sb, String prefix, boolean isTail) {
-//        if (node == null) return;
-//
-//        if (node.right != null) {
-//            visualizeHelper(node.right, sb, prefix + (isTail ? "|   " : "    "), false);
-//        }
-//
-//        sb.append(prefix)
-//            .append(isTail ? "\\-- " : "/-- ")
-//            .append(node.value)
-//            .append(node.color == RED ? " (R)" : " (B)")
-//            .append("\n");
-//
-//        if (node.left != null) {
-//            visualizeHelper(node.left, sb, prefix + (isTail ? "    " : "|   "), true);
-//        }
-//    }
 }
