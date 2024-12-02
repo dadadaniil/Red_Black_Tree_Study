@@ -2,15 +2,12 @@ package org.example.tree;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
-import org.example.tree.traversal.TraversalStrategy;
 
 @Log4j2
-public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
+public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<T> {
 
     public static final boolean RED = false;
     public static final boolean BLACK = true;
-
-    public Node<T> root;
 
 
     @Override
@@ -152,28 +149,6 @@ public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
         // Step 4: Update root if needed
         if (node == root) {
             root = leftChild;
-        }
-    }
-
-    private void updateChildReference(Node<T> node, Node<T> child, boolean isRight) {
-        if (isRight) {
-            node.right = child;
-        } else {
-            node.left = child;
-        }
-        if (child != null) {
-            child.parent = node;
-        }
-    }
-
-    private void updateParentReference(Node<T> node, Node<T> child) {
-        child.parent = node.parent;
-        if (node.parent == null) {
-            root = child;
-        } else if (node == node.parent.left) {
-            node.parent.left = child;
-        } else {
-            node.parent.right = child;
         }
     }
 
@@ -331,20 +306,6 @@ public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
     }
 
 
-    public void replaceNode(Node<T> oldNode, Node<T> newNode) {
-        if (oldNode.parent == null) {
-            root = newNode;
-        } else if (oldNode == oldNode.parent.left) {
-            oldNode.parent.left = newNode;
-        } else {
-            oldNode.parent.right = newNode;
-        }
-
-        if (newNode != null) {
-            newNode.parent = oldNode.parent;
-        }
-    }
-
     public Node<T> findMinimum(Node<T> node) {
         while (node.left != null) {
             node = node.left;
@@ -352,10 +313,45 @@ public class RedBlackTree<T extends Comparable<T>> implements Tree<T> {
         return node;
     }
 
-    public void traverse(TraversalStrategy<T> strategy) {
-        if (root != null) {
-            strategy.traverse(root);
+    @Override
+    protected void handleLeftSubtreeViolation(Node<T> node) {
+        Node<T> parent = node.parent;
+        Node<T> grandparent = parent.parent;
+        Node<T> uncle = grandparent.right;
+
+        if (uncle != null && uncle.color == RED) {
+            parent.color = BLACK;
+            uncle.color = BLACK;
+            grandparent.color = RED;
+        } else {
+            if (node == parent.right) {
+                rotateLeft(parent);
+                node = parent;
+            }
+            parent.color = BLACK;
+            grandparent.color = RED;
+            rotateRight(grandparent);
         }
     }
 
+    @Override
+    protected void handleRightSubtreeViolation(Node<T> node) {
+        Node<T> parent = node.parent;
+        Node<T> grandparent = parent.parent;
+        Node<T> uncle = grandparent.left;
+
+        if (uncle != null && uncle.color == RED) {
+            parent.color = BLACK;
+            uncle.color = BLACK;
+            grandparent.color = RED;
+        } else {
+            if (node == parent.left) {
+                rotateRight(parent);
+                node = parent;
+            }
+            parent.color = BLACK;
+            grandparent.color = RED;
+            rotateLeft(grandparent);
+        }
+    }
 }
