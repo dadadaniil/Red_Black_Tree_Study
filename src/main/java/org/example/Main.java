@@ -2,11 +2,10 @@ package org.example;
 
 
 import lombok.extern.log4j.Log4j2;
+import org.example.tree.RedBlackTree;
+import org.example.utils.TreeUtils;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-
-import static org.example.RedBlackTree.createTreeFromFile;
+import static org.example.utils.TreeUtils.createTreeFromFile;
 
 @Log4j2
 public class Main {
@@ -17,11 +16,7 @@ public class Main {
         }
         log.info(path);
 
-        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         RedBlackTree<Integer> intTree = createTreeFromFile(path); // T = Integer
-
-        log.info("Using path: {}", path);
-
-        System.out.println(intTree.visualize());
+        TreeUtils.printTree(intTree);
     }
 }

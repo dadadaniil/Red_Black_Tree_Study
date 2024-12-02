@@ -1,6 +1,6 @@
 package org.example.node;
 
-import org.example.RedBlackTree;
+import org.example.tree.RedBlackTree;
 
 public class Node<T> {
     public T value;

@@ -1,4 +1,4 @@
-import org.example.RedBlackTree;
+import org.example.tree.RedBlackTree;
 import org.example.node.Node;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
