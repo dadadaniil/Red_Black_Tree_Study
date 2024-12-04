@@ -5,49 +5,53 @@ import org.example.node.Node;
 
 import java.util.Optional;
 
+import static org.example.utils.performance.TimingUtil.measureExecutionTime;
+
 @Log4j2
 public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<T> {
 
     public static final boolean RED = false;
     public static final boolean BLACK = true;
 
-
     @Override
     public void insert(T value) {
-        Node<T> newNode = new Node<>(value);
-        if (root == null) {
-            root = newNode;
-            root.color = BLACK;
-            return;
-        }
-
-        Node<T> current = root, parent = null;
-
-        while (current != null) {
-            parent = current;
-
-            // Use compareTo for comparisons
-            int comparison = value.compareTo(current.value);
-
-            if (comparison < 0) {
-                current = current.left;
-            } else if (comparison > 0) {
-                current = current.right;
-            } else {
-                return; // Ignore duplicates
+        measureExecutionTime("insert", () -> {
+            Node<T> newNode = new Node<>(value);
+            if (root == null) {
+                root = newNode;
+                root.color = BLACK;
+                return;
             }
-        }
 
-        // Attach the new node to its parent
-        newNode.parent = parent;
-        if (value.compareTo(parent.value) < 0) {
-            parent.left = newNode;
-        } else {
-            parent.right = newNode;
-        }
+            Node<T> current = root, parent = null;
 
-        // Fix Red-Black Tree properties
-        fixInsertion(newNode);
+            while (current != null) {
+                parent = current;
+
+                // Use compareTo for comparisons
+                int comparison = value.compareTo(current.value);
+
+                if (comparison < 0) {
+                    current = current.left;
+                } else if (comparison > 0) {
+                    current = current.right;
+                } else {
+                    return; // Ignore duplicates
+                }
+            }
+
+            // Attach the new node to its parent
+            newNode.parent = parent;
+            if (value.compareTo(parent.value) < 0) {
+                parent.left = newNode;
+            } else {
+                parent.right = newNode;
+            }
+
+            // Fix Red-Black Tree properties
+            fixInsertion(newNode);
+        });
+
     }
 
 
@@ -156,29 +160,33 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
 
     @Override
     public void delete(T value) {
-        Optional<Node<T>> optionalNode = search(value);
-        if (optionalNode.isEmpty()) return;
-        Node<T> nodeToDelete = optionalNode.get();
+        measureExecutionTime("delete", () -> {
 
-        Node<T> movedUpNode;
-        boolean deletedNodeColor = nodeToDelete.color;
+            Optional<Node<T>> optionalNode = search(value);
+            if (optionalNode.isEmpty()) return;
+            Node<T> nodeToDelete = optionalNode.get();
 
-        if (nodeToDelete.left == null) {
-            movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.right);
-        } else if (nodeToDelete.right == null) {
-            movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.left);
-        } else {
-            movedUpNode = handleTwoChildNodeDeletion(nodeToDelete);
-            deletedNodeColor = movedUpNode.color;
-        }
+            Node<T> movedUpNode;
+            boolean deletedNodeColor = nodeToDelete.color;
 
-        if (deletedNodeColor == BLACK) {
-            fixDeletion(movedUpNode);
-        }
+            if (nodeToDelete.left == null) {
+                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.right);
+            } else if (nodeToDelete.right == null) {
+                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.left);
+            } else {
+                movedUpNode = handleTwoChildNodeDeletion(nodeToDelete);
+                deletedNodeColor = movedUpNode.color;
+            }
+
+            if (deletedNodeColor == BLACK) {
+                fixDeletion(movedUpNode);
+            }
+        });
     }
 
     @Override
     public Optional<Node<T>> search(T value) {
+
         Node<T> current = root;
         while (current != null && !current.value.equals(value)) {
             if (value.compareTo(current.value) < 0) {
@@ -357,4 +365,5 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
             rotateLeft(grandparent);
         }
     }
+
 }
