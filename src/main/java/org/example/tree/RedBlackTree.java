@@ -2,7 +2,7 @@ package org.example.tree;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
-import org.example.utils.database.DatabaseHandler;
+import org.example.utils.database.AbstractDatabaseHandler;
 
 import java.util.Optional;
 
@@ -14,11 +14,11 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
     public static final boolean RED = false;
     public static final boolean BLACK = true;
 
-    private final DatabaseHandler databaseHandler;
+    private final AbstractDatabaseHandler postgreSQLDatabaseHandler;
     private final int treeId;
 
-    public RedBlackTree(DatabaseHandler databaseHandler, int treeId) {
-        this.databaseHandler = databaseHandler;
+    public RedBlackTree(AbstractDatabaseHandler abstractDatabaseHandler, int treeId) {
+        this.postgreSQLDatabaseHandler = abstractDatabaseHandler;
         this.treeId = treeId;
     }
 
@@ -60,7 +60,7 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
             // Fix Red-Black Tree properties
             fixInsertion(newNode);
         });
-        databaseHandler.logPerformance(treeId, "INSERT", duration);
+        postgreSQLDatabaseHandler.logPerformance(treeId, "INSERT", duration);
     }
 
 
@@ -88,7 +88,7 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
                 fixDeletion(movedUpNode);
             }
         });
-        databaseHandler.logPerformance(treeId, "DELETE", duration);
+        postgreSQLDatabaseHandler.logPerformance(treeId, "DELETE", duration);
     }
 
     @Override

@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
 import org.example.tree.RedBlackTree;
-import org.example.utils.database.DatabaseHandler;
+import org.example.utils.database.AbstractDatabaseHandler;
+import org.example.utils.database.DatabaseHandlerFactory;
+import org.example.utils.database.PostgreSQLDatabaseHandler;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,7 +17,7 @@ import java.io.IOException;
 @Log4j2
 public class TreeUtils {
 
-    private static final DatabaseHandler databaseHandler = new DatabaseHandler();
+    private static final AbstractDatabaseHandler databaseHandler= DatabaseHandlerFactory.getDatabaseHandler();
     private static final ObjectMapper objectMapper = new ObjectMapper(); // For JSON serialization
 
     public static <T extends Comparable<T>> RedBlackTree<T> createTreeFromFile(String filePath) {
