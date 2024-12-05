@@ -2,6 +2,7 @@ package org.example.tree;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
+import org.example.utils.database.DatabaseHandler;
 
 import java.util.Optional;
 
@@ -13,9 +14,17 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
     public static final boolean RED = false;
     public static final boolean BLACK = true;
 
+    private final DatabaseHandler databaseHandler;
+    private final int treeId;
+
+    public RedBlackTree(DatabaseHandler databaseHandler, int treeId) {
+        this.databaseHandler = databaseHandler;
+        this.treeId = treeId;
+    }
+
     @Override
     public void insert(T value) {
-        measureExecutionTime("insert", () -> {
+        double duration = measureExecutionTime("insert", () -> {
             Node<T> newNode = new Node<>(value);
             if (root == null) {
                 root = newNode;
@@ -51,9 +60,51 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
             // Fix Red-Black Tree properties
             fixInsertion(newNode);
         });
-
+        databaseHandler.logPerformance(treeId, "INSERT", duration);
     }
 
+
+    @Override
+    public void delete(T value) {
+        double duration = measureExecutionTime("delete", () -> {
+            Optional<Node<T>> optionalNode = search(value);
+            if (optionalNode.isEmpty()) return;
+
+            Node<T> nodeToDelete = optionalNode.get();
+
+            Node<T> movedUpNode;
+            boolean deletedNodeColor = nodeToDelete.color;
+
+            if (nodeToDelete.left == null) {
+                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.right);
+            } else if (nodeToDelete.right == null) {
+                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.left);
+            } else {
+                movedUpNode = handleTwoChildNodeDeletion(nodeToDelete);
+                deletedNodeColor = movedUpNode.color;
+            }
+
+            if (deletedNodeColor == BLACK) {
+                fixDeletion(movedUpNode);
+            }
+        });
+        databaseHandler.logPerformance(treeId, "DELETE", duration);
+    }
+
+    @Override
+    public Optional<Node<T>> search(T value) {
+        Node<T> current = root;
+        while (current != null && !current.value.equals(value)) {
+            if (value.compareTo(current.value) < 0) {
+                current = current.left;
+            } else {
+                current = current.right;
+            }
+        }
+        return Optional.ofNullable(current);
+    }
+
+    ;
 
     void fixInsertion(Node<T> node) {
         while (node != root && node.parent.color == RED) {
@@ -156,46 +207,6 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
         if (node == root) {
             root = leftChild;
         }
-    }
-
-    @Override
-    public void delete(T value) {
-        measureExecutionTime("delete", () -> {
-
-            Optional<Node<T>> optionalNode = search(value);
-            if (optionalNode.isEmpty()) return;
-            Node<T> nodeToDelete = optionalNode.get();
-
-            Node<T> movedUpNode;
-            boolean deletedNodeColor = nodeToDelete.color;
-
-            if (nodeToDelete.left == null) {
-                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.right);
-            } else if (nodeToDelete.right == null) {
-                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.left);
-            } else {
-                movedUpNode = handleTwoChildNodeDeletion(nodeToDelete);
-                deletedNodeColor = movedUpNode.color;
-            }
-
-            if (deletedNodeColor == BLACK) {
-                fixDeletion(movedUpNode);
-            }
-        });
-    }
-
-    @Override
-    public Optional<Node<T>> search(T value) {
-
-        Node<T> current = root;
-        while (current != null && !current.value.equals(value)) {
-            if (value.compareTo(current.value) < 0) {
-                current = current.left;
-            } else {
-                current = current.right;
-            }
-        }
-        return Optional.ofNullable(current);
     }
 
     private Node<T> handleSingleChildOrLeafNodeDeletion(Node<T> nodeToDelete, Node<T> child) {
@@ -365,5 +376,7 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
             rotateLeft(grandparent);
         }
     }
+
+
 
 }

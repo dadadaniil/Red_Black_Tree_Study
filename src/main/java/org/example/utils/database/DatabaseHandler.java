@@ -11,22 +11,46 @@ public class DatabaseHandler {
     private static final String USER = "user";
     private static final String PASSWORD = "password";
 
-    public void saveTreeAction(String actionType, long durationMs, String filePath) {
-        String sql = "INSERT INTO performancelogs (action_type, duration_ms, file_path, timestamp) VALUES (?, ?, ?, NOW())";
+    public void logPerformance(int treeId, String operationType, long durationNs) {
+        String sql = "INSERT INTO PerformanceLogs (tree_id, operation_type, operation_duration) VALUES (?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, actionType); // Action type (e.g., INSERT, DELETE)
-            stmt.setLong(2, durationMs);   // Duration in milliseconds
-            stmt.setString(3, filePath);  // File path from which the tree was created
+            stmt.setInt(1, treeId);
+            stmt.setString(2, operationType);
+            stmt.setDouble(3, durationNs / 1_000_000.0); // Convert nanoseconds to milliseconds
 
             stmt.executeUpdate();
-            log.info("Data saved successfully!");
+            log.info("Performance logged: TreeID = {}, Operation = {}, Duration = {} ms", treeId, operationType, durationNs / 1_000_000.0);
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Failed to log performance: {}", e.getMessage());
         }
+    }
+
+
+    public int saveTree(int fileId, String treeType, int nodeCount, String treeStructureJson) {
+        String sql = "INSERT INTO Trees (file_id, tree_type, node_count, tree_structure) VALUES (?, ?, ?, ?::jsonb) RETURNING tree_id";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, fileId);
+            stmt.setString(2, treeType);
+            stmt.setInt(3, nodeCount);
+            stmt.setString(4, treeStructureJson);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int treeId = rs.getInt(1);
+                log.info("Tree saved successfully with ID: {}", treeId);
+                return treeId;
+            }
+        } catch (SQLException e) {
+            log.error("Failed to save tree: {}", e.getMessage());
+        }
+        return -1; // Error
     }
 
     public int saveFile(String fileName, String filePath, String metadataJson) {
@@ -41,10 +65,12 @@ public class DatabaseHandler {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1); // Return the generated file_id
+                int fileId = rs.getInt(1);
+                log.info("File saved successfully with ID: {}", fileId);
+                return fileId;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Failed to save file: {}", e.getMessage());
         }
         return -1; // Error
     }
