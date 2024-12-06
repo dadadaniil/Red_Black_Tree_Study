@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
 import org.example.tree.RedBlackTree;
-import org.example.utils.database.AbstractDatabaseHandler;
-import org.example.utils.database.DatabaseHandlerFactory;
-import org.example.utils.database.PostgreSQLDatabaseHandler;
+import org.example.utils.database.DatabaseHandler;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -17,22 +15,19 @@ import java.io.IOException;
 @Log4j2
 public class TreeUtils {
 
-    private static final AbstractDatabaseHandler databaseHandler= DatabaseHandlerFactory.getDatabaseHandler();
-    private static final ObjectMapper objectMapper = new ObjectMapper(); // For JSON serialization
+    private static final DatabaseHandler databaseHandler= new DatabaseHandler();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static <T extends Comparable<T>> RedBlackTree<T> createTreeFromFile(String filePath) {
-    // Create a new instance of RedBlackTree directly
     RedBlackTree<T> tree = new RedBlackTree<>(databaseHandler, 1);
 
     try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-        // Read and insert values into the tree
-        br.lines()
+                br.lines()
             .map(String::trim)
             .filter(line -> !line.isEmpty())
             .forEach(line -> insertValueIntoTree(tree, line));
 
-        // Save the tree to the database after creation
-        saveTreeToDatabase(tree, filePath);
+                saveTreeToDatabase(tree, filePath);
 
     } catch (IOException e) {
         log.error("Error reading file: {}", filePath, e);
@@ -86,8 +81,7 @@ public class TreeUtils {
         }
     }
 
-    // New method to serialize the tree into JSON format
-    private static <T extends Comparable<T>> String serializeTreeToJson(Node<T> node) throws JsonProcessingException {
+        private static <T extends Comparable<T>> String serializeTreeToJson(Node<T> node) throws JsonProcessingException {
         if (node == null) return null;
 
         ObjectNode jsonNode = objectMapper.createObjectNode();
@@ -105,8 +99,7 @@ public class TreeUtils {
         return jsonNode.toString();
     }
 
-    // Update saveTreeToDatabase to use JSON serialization
-    private static <T extends Comparable<T>> void saveTreeToDatabase(RedBlackTree<T> tree, String filePath) throws JsonProcessingException {
+        private static <T extends Comparable<T>> void saveTreeToDatabase(RedBlackTree<T> tree, String filePath) throws JsonProcessingException {
         String treeJson = serializeTreeToJson(tree.root);
         if (treeJson == null) {
             log.error("Tree is empty; cannot save to database.");
@@ -116,8 +109,7 @@ public class TreeUtils {
         int fileId = databaseHandler.saveFile(
             filePath.substring(filePath.lastIndexOf('/') + 1),
             filePath,
-            "{}" // Placeholder for file metadata
-        );
+            "{}"         );
 
         if (fileId == -1) {
             log.error("Failed to save file metadata.");
