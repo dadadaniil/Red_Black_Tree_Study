@@ -13,7 +13,7 @@ public class TimingUtil {
             action.run();
         } finally {
             long endTime = System.nanoTime();
-            double durationMs = (endTime - startTime) / 1_000_000.0; // Convert to milliseconds
+            double durationMs = (endTime - startTime) / 1_000_000.0;
             log.info("{} took {} ms", methodName, durationMs);
             return durationMs;
         }

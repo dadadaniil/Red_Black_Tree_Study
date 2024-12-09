@@ -2,11 +2,9 @@ package org.example.tree;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
-import org.example.utils.database.DatabaseHandler;
+import org.example.utils.performance.PerformanceLogger;
 
 import java.util.Optional;
-
-import static org.example.utils.performance.TimingUtil.measureExecutionTime;
 
 @Log4j2
 public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<T> {
@@ -14,81 +12,67 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
     public static final boolean RED = false;
     public static final boolean BLACK = true;
 
-    private final DatabaseHandler postgreSQLDatabaseHandler;
-    private final int treeId;
-
-    public RedBlackTree(DatabaseHandler databaseHandler, int treeId) {
-        this.postgreSQLDatabaseHandler = databaseHandler;
-        this.treeId = treeId;
-    }
-
     @Override
     public void insert(T value) {
-        double duration = measureExecutionTime("insert", () -> {
-            Node<T> newNode = new Node<>(value);
-            if (root == null) {
-                root = newNode;
-                root.color = BLACK;
-                return;
-            }
+        Node<T> newNode = new Node<>(value);
+        if (root == null) {
+            root = newNode;
+            root.color = BLACK;
+            return;
+        }
 
-            Node<T> current = root, parent = null;
+        Node<T> current = root, parent = null;
 
-            while (current != null) {
-                parent = current;
+        while (current != null) {
+            parent = current;
 
-                // Use compareTo for comparisons
-                int comparison = value.compareTo(current.value);
+            // Use compareTo for comparisons
+            int comparison = value.compareTo(current.value);
 
-                if (comparison < 0) {
-                    current = current.left;
-                } else if (comparison > 0) {
-                    current = current.right;
-                } else {
-                    return; // Ignore duplicates
-                }
-            }
-
-            // Attach the new node to its parent
-            newNode.parent = parent;
-            if (value.compareTo(parent.value) < 0) {
-                parent.left = newNode;
+            if (comparison < 0) {
+                current = current.left;
+            } else if (comparison > 0) {
+                current = current.right;
             } else {
-                parent.right = newNode;
+                return; // Ignore duplicates
             }
+        }
 
-            // Fix Red-Black Tree properties
-            fixInsertion(newNode);
-        });
-        postgreSQLDatabaseHandler.logPerformance(treeId, "INSERT", duration);
+        // Attach the new node to its parent
+        newNode.parent = parent;
+        if (value.compareTo(parent.value) < 0) {
+            parent.left = newNode;
+        } else {
+            parent.right = newNode;
+        }
+
+        // Fix Red-Black Tree properties
+        fixInsertion(newNode);
     }
 
 
     @Override
     public void delete(T value) {
-        double duration = measureExecutionTime("delete", () -> {
-            Optional<Node<T>> optionalNode = search(value);
-            if (optionalNode.isEmpty()) return;
+        Optional<Node<T>> optionalNode = search(value);
+        if (optionalNode.isEmpty()) return;
 
-            Node<T> nodeToDelete = optionalNode.get();
+        Node<T> nodeToDelete = optionalNode.get();
 
-            Node<T> movedUpNode;
-            boolean deletedNodeColor = nodeToDelete.color;
+        Node<T> movedUpNode;
+        boolean deletedNodeColor = nodeToDelete.color;
 
-            if (nodeToDelete.left == null) {
-                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.right);
-            } else if (nodeToDelete.right == null) {
-                movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.left);
-            } else {
-                movedUpNode = handleTwoChildNodeDeletion(nodeToDelete);
-                deletedNodeColor = movedUpNode.color;
-            }
+        if (nodeToDelete.left == null) {
+            movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.right);
+        } else if (nodeToDelete.right == null) {
+            movedUpNode = handleSingleChildOrLeafNodeDeletion(nodeToDelete, nodeToDelete.left);
+        } else {
+            movedUpNode = handleTwoChildNodeDeletion(nodeToDelete);
+            deletedNodeColor = movedUpNode.color;
+        }
 
-            if (deletedNodeColor == BLACK) {
-                fixDeletion(movedUpNode);
-            }
-        });
-        postgreSQLDatabaseHandler.logPerformance(treeId, "DELETE", duration);
+        if (deletedNodeColor == BLACK) {
+            fixDeletion(movedUpNode);
+        }
     }
 
     @Override
@@ -104,7 +88,6 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
         return Optional.ofNullable(current);
     }
 
-    ;
 
     void fixInsertion(Node<T> node) {
         while (node != root && node.parent.color == RED) {

@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.example.node.Node;
 import org.example.tree.RedBlackTree;
 import org.example.utils.database.DatabaseHandler;
+import org.example.utils.performance.PerformanceLogger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,27 +16,27 @@ import java.io.IOException;
 @Log4j2
 public class TreeUtils {
 
-    private static final DatabaseHandler databaseHandler= new DatabaseHandler();
+    private static final DatabaseHandler databaseHandler = new DatabaseHandler();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static <T extends Comparable<T>> RedBlackTree<T> createTreeFromFile(String filePath) {
-    RedBlackTree<T> tree = new RedBlackTree<>(databaseHandler, 1);
+        PerformanceLogger performanceLogger = new PerformanceLogger(databaseHandler, 1);
+        RedBlackTree<T> tree = new RedBlackTree<>();
 
-    try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-                br.lines()
-            .map(String::trim)
-            .filter(line -> !line.isEmpty())
-            .forEach(line -> insertValueIntoTree(tree, line));
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.lines()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .forEach(line -> insertValueIntoTree(tree, line));
 
-                saveTreeToDatabase(tree, filePath);
+            saveTreeToDatabase(tree, filePath);
 
-    } catch (IOException e) {
-        log.error("Error reading file: {}", filePath, e);
+        } catch (IOException e) {
+            log.error("Error reading file: {}", filePath, e);
+        }
+
+        return tree;
     }
-
-    return tree;
-}
-
 
     private static <T extends Comparable<T>> void insertValueIntoTree(RedBlackTree<T> tree, String line) {
         try {
@@ -60,7 +61,7 @@ public class TreeUtils {
     public static <T extends Comparable<T>> void printTree(RedBlackTree<T> redBlackTree) {
         StringBuilder sb = new StringBuilder();
         visualizeHelper(redBlackTree.root, sb, "", true);
-        System.out.println(sb);
+        log.info(String.valueOf(sb));
     }
 
     private static <T extends Comparable<T>> void visualizeHelper(Node<T> node, StringBuilder sb, String prefix, boolean isTail) {
@@ -81,7 +82,7 @@ public class TreeUtils {
         }
     }
 
-        private static <T extends Comparable<T>> String serializeTreeToJson(Node<T> node) throws JsonProcessingException {
+    private static <T extends Comparable<T>> String serializeTreeToJson(Node<T> node) throws JsonProcessingException {
         if (node == null) return null;
 
         ObjectNode jsonNode = objectMapper.createObjectNode();
@@ -99,7 +100,7 @@ public class TreeUtils {
         return jsonNode.toString();
     }
 
-        private static <T extends Comparable<T>> void saveTreeToDatabase(RedBlackTree<T> tree, String filePath) throws JsonProcessingException {
+    private static <T extends Comparable<T>> void saveTreeToDatabase(RedBlackTree<T> tree, String filePath) throws JsonProcessingException {
         String treeJson = serializeTreeToJson(tree.root);
         if (treeJson == null) {
             log.error("Tree is empty; cannot save to database.");
@@ -109,7 +110,8 @@ public class TreeUtils {
         int fileId = databaseHandler.saveFile(
             filePath.substring(filePath.lastIndexOf('/') + 1),
             filePath,
-            "{}"         );
+            "{}"
+        );
 
         if (fileId == -1) {
             log.error("Failed to save file metadata.");
