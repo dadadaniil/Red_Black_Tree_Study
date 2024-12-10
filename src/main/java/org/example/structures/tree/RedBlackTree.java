@@ -1,8 +1,7 @@
-package org.example.tree;
+package org.example.structures.tree;
 
 import lombok.extern.log4j.Log4j2;
-import org.example.node.Node;
-import org.example.utils.performance.PerformanceLogger;
+import org.example.structures.node.Node;
 
 import java.util.Optional;
 

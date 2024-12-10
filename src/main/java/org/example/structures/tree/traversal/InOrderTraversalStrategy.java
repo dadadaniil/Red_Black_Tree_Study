@@ -1,7 +1,7 @@
-package org.example.tree.traversal;
+package org.example.structures.tree.traversal;
 
 import lombok.extern.log4j.Log4j2;
-import org.example.node.Node;
+import org.example.structures.node.Node;
 
 @Log4j2
 public class InOrderTraversalStrategy<T extends Comparable<T>> implements TraversalStrategy<T> {

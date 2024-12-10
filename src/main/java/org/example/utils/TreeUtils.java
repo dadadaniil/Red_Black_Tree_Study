@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.log4j.Log4j2;
-import org.example.node.Node;
-import org.example.tree.RedBlackTree;
-import org.example.utils.database.DatabaseHandler;
+import org.example.structures.node.Node;
+import org.example.structures.tree.RedBlackTree;
+import org.example.utils.database.DatabaseCommunicator;
 import org.example.utils.performance.PerformanceLogger;
 
 import java.io.BufferedReader;
@@ -16,11 +16,11 @@ import java.io.IOException;
 @Log4j2
 public class TreeUtils {
 
-    private static final DatabaseHandler databaseHandler = new DatabaseHandler();
+    private static final DatabaseCommunicator DATABASE_COMMUNICATOR = new DatabaseCommunicator();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static <T extends Comparable<T>> RedBlackTree<T> createTreeFromFile(String filePath) {
-        PerformanceLogger performanceLogger = new PerformanceLogger(databaseHandler, 1);
+        PerformanceLogger performanceLogger = new PerformanceLogger(DATABASE_COMMUNICATOR, 1);
         RedBlackTree<T> tree = new RedBlackTree<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -107,7 +107,7 @@ public class TreeUtils {
             return;
         }
 
-        int fileId = databaseHandler.saveFile(
+        int fileId = DATABASE_COMMUNICATOR.saveFile(
             filePath.substring(filePath.lastIndexOf('/') + 1),
             filePath,
             "{}"
@@ -118,7 +118,7 @@ public class TreeUtils {
             return;
         }
 
-        int treeId = databaseHandler.saveTree(fileId, "Red-Black Tree", 1, treeJson);
+        int treeId = DATABASE_COMMUNICATOR.saveTree(fileId, "Red-Black Tree", 1, treeJson);
         if (treeId == -1) {
             log.error("Failed to save tree: {}", treeJson);
         } else {

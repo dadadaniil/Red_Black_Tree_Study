@@ -1,21 +1,21 @@
 package org.example.utils.performance;
 
-import org.example.utils.database.DatabaseHandler;
+import org.example.utils.database.DatabaseCommunicator;
 
 import static org.example.utils.performance.TimingUtil.measureExecutionTime;
 
 public class PerformanceLogger {
 
-    private final DatabaseHandler postgreSQLDatabaseHandler;
+    private final DatabaseCommunicator postgreSQLDatabaseCommunicator;
     private final int treeId;
 
-    public PerformanceLogger(DatabaseHandler postgreSQLDatabaseHandler, int treeId) {
-        this.postgreSQLDatabaseHandler = postgreSQLDatabaseHandler;
+    public PerformanceLogger(DatabaseCommunicator postgreSQLDatabaseCommunicator, int treeId) {
+        this.postgreSQLDatabaseCommunicator = postgreSQLDatabaseCommunicator;
         this.treeId = treeId;
     }
 
     public void logAction(String operationType, Runnable action) {
         double duration = measureExecutionTime(operationType, action);
-        postgreSQLDatabaseHandler.logPerformance(treeId, operationType, duration);
+        postgreSQLDatabaseCommunicator.logPerformance(treeId, operationType, duration);
     }
 }

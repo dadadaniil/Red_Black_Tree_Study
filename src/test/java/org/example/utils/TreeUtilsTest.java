@@ -1,6 +1,6 @@
 package org.example.utils;
 
-import org.example.tree.RedBlackTree;
+import org.example.structures.tree.RedBlackTree;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;

@@ -7,13 +7,13 @@ import java.sql.*;
 import java.util.Properties;
 
 @Log4j2
-public class DatabaseHandler {
+public class DatabaseCommunicator {
 
     protected String dbUrl;
     protected String user;
     protected String password;
 
-    public DatabaseHandler() {
+    public DatabaseCommunicator() {
         loadDatabaseProperties();
     }
 

@@ -1,7 +1,7 @@
-package org.example.tree;
+package org.example.structures.tree;
 
-import org.example.node.Node;
-import org.example.tree.traversal.TraversalStrategy;
+import org.example.structures.node.Node;
+import org.example.structures.tree.traversal.TraversalStrategy;
 
 /**
  * I had an idea to also move fixInsertion for delete and insert

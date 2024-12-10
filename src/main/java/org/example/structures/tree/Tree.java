@@ -1,6 +1,6 @@
-package org.example.tree;
+package org.example.structures.tree;
 
-import org.example.node.Node;
+import org.example.structures.node.Node;
 
 import java.util.Optional;
 
