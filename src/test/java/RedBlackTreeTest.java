@@ -1,5 +1,5 @@
-import org.example.tree.RedBlackTree;
-import org.example.node.Node;
+import org.example.storage.tree.RedBlackTree;
+import org.example.storage.node.Node;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

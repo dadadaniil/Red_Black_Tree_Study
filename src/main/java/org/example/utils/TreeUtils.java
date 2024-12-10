@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.log4j.Log4j2;
-import org.example.node.Node;
-import org.example.tree.RedBlackTree;
+import org.example.storage.node.Node;
+import org.example.storage.tree.RedBlackTree;
 import org.example.utils.database.DatabaseHandler;
 
 import java.io.BufferedReader;

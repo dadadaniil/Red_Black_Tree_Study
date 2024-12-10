@@ -2,7 +2,7 @@ package org.example;
 
 
 import lombok.extern.log4j.Log4j2;
-import org.example.tree.RedBlackTree;
+import org.example.storage.tree.RedBlackTree;
 import org.example.utils.TreeUtils;
 
 import static org.example.utils.TreeUtils.createTreeFromFile;

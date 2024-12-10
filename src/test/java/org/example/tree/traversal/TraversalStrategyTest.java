@@ -1,6 +1,9 @@
 package org.example.tree.traversal;
 
-import org.example.node.Node;
+import org.example.storage.node.Node;
+import org.example.storage.tree.traversal.InOrderTraversalStrategy;
+import org.example.storage.tree.traversal.PostOrderTraversalStrategy;
+import org.example.storage.tree.traversal.PreOrderTraversalStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

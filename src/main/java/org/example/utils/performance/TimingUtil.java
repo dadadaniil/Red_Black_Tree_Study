@@ -2,8 +2,6 @@ package org.example.utils.performance;
 
 import lombok.extern.log4j.Log4j2;
 
-import java.util.function.Consumer;
-
 @Log4j2
 public class TimingUtil {
 

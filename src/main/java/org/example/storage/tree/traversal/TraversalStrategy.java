@@ -1,6 +1,6 @@
-package org.example.tree.traversal;
+package org.example.storage.tree.traversal;
 
-import org.example.node.Node;
+import org.example.storage.node.Node;
 
 public interface TraversalStrategy<T extends Comparable<T>> {
     void traverse(Node<T> node);
