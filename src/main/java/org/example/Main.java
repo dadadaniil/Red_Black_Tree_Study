@@ -24,7 +24,6 @@ public class Main {
         KafkaProducerUtil producer = new KafkaProducerUtil(bootstrapServers);
 
         PerformanceLog performanceLog = PerformanceLog.builder()
-            .logId(1)
             .operationType(OperationType.INSERT)
             .operationDuration(123.45f)
             .operationTimestamp(LocalDateTime.now())
@@ -36,7 +35,11 @@ public class Main {
         KafkaConsumerUtil consumer = new KafkaConsumerUtil(bootstrapServers, "performance-log-group", topic);
 
         PerformanceLog receivedLog = consumer.consumePerformanceLog();
-        log.info("Received PerformanceLog: {}", receivedLog);
+        if (receivedLog != null) {
+            log.info("Received PerformanceLog: {}", receivedLog);
+        } else {
+            log.warn("No PerformanceLog received.");
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             producer.close();
