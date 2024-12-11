@@ -1,5 +1,6 @@
 package org.example.utils.pipeline;
 
+import org.example.utils.PerformanceLog;
 import org.example.utils.database.DatabaseHandler;
 
 public class DatabaseStage implements Stage {
@@ -9,14 +10,13 @@ public class DatabaseStage implements Stage {
 
 
     @Override
-    public RequestContext process(RequestContext context) {
+    public PerformanceLog process(PerformanceLog performanceLog) {
         if (isDatabaseEnabled) {
             databaseHandler.logPerformance(
-                context.getTreeId(),
-                context.getOperationType().getOperation(),
-                context.getDurationMs()
+                performanceLog.getOperationType().getOperation(),
+                performanceLog.getOperationDuration()
             );
         }
-        return context;
+        return performanceLog;
     }
 }

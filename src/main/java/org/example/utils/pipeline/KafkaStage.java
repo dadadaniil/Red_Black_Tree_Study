@@ -1,5 +1,7 @@
 package org.example.utils.pipeline;
 
+import org.example.utils.PerformanceLog;
+import org.example.utils.kafka.KafkaConsumerUtil;
 import org.example.utils.kafka.KafkaProducerUtil;
 
 public class KafkaStage implements Stage {
@@ -10,14 +12,26 @@ public class KafkaStage implements Stage {
         ));
 
     private KafkaProducerUtil kafkaProducerUtil;
+    private KafkaConsumerUtil kafkaConsumerUtil;
+    private final String topic = "performance-log-topic";
+
+    public KafkaStage(String bootstrapServers) {
+        kafkaProducerUtil = new KafkaProducerUtil(bootstrapServers);
+        kafkaConsumerUtil = new KafkaConsumerUtil(bootstrapServers, "performance-log-group", topic);
+    }
 
     @Override
-    public RequestContext process(RequestContext context) {
+    public PerformanceLog process(PerformanceLog performanceLog) {
         if (isKafkaEnabled) {
-            kafkaProducerUtil.sendEvent( String.valueOf(context.getTreeId()),
-                "Operation " + context.getOperationType() + " took " + context.getDurationMs() + " ms"
-            ,"");
+            kafkaProducerUtil.sendEvent(topic, String.valueOf(performanceLog.getLogId()), performanceLog.toString());
+
+            performanceLog = consumeAndOverridePerformanceLog(performanceLog);
         }
-        return context;
+        return performanceLog;
+    }
+
+    private PerformanceLog consumeAndOverridePerformanceLog(PerformanceLog performanceLog) {
+        performanceLog = kafkaConsumerUtil.consumePerformanceLog();
+        return performanceLog;
     }
 }

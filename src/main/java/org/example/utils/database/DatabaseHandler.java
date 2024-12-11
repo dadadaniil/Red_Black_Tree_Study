@@ -17,18 +17,17 @@ public class DatabaseHandler {
         loadDatabaseProperties();
     }
 
-    public void logPerformance(int treeId, String operationType, double durationMs) {
-        String sql = "INSERT INTO PerformanceLogs (tree_id, operation_type, operation_duration) VALUES (?, ?, ?)";
+    public void logPerformance(String operationType, double durationMs) {
+        String sql = "INSERT INTO PerformanceLogs ( operation_type, operation_duration) VALUES ( ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, treeId);
             stmt.setString(2, operationType);
             stmt.setDouble(3, durationMs);
 
             stmt.executeUpdate();
-            log.info("Performance logged: TreeID = {}, Operation = {}, Duration = {} ms", treeId, operationType, durationMs);
+            log.info("Performance logged: Operation = {}, Duration = {} ms", operationType, durationMs);
 
         } catch (SQLException e) {
             log.error("Failed to log performance: {}", e.getMessage());
