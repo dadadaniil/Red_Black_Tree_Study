@@ -1,15 +1,18 @@
 package org.example.utils.pipeline;
 
+import lombok.extern.log4j.Log4j2;
+import org.example.utils.AppConfig;
 import org.example.utils.PerformanceLog;
 import org.example.utils.kafka.KafkaConsumerUtil;
 import org.example.utils.kafka.KafkaProducerUtil;
 
+import java.util.function.Function;
+
+@Log4j2
 public class KafkaStage implements Stage {
 
-    private final boolean isKafkaEnabled = Boolean.parseBoolean(
-        System.getProperty(
-            "feature.database.enabled", "false"
-        ));
+    private final boolean isKafkaEnabled = AppConfig
+        .getBoolean("feature.kafka.enabled", false);
 
     private KafkaProducerUtil kafkaProducerUtil;
     private KafkaConsumerUtil kafkaConsumerUtil;
@@ -26,6 +29,7 @@ public class KafkaStage implements Stage {
             kafkaProducerUtil.sendEvent(topic, String.valueOf(performanceLog.getLogId()), performanceLog.toString());
 
             performanceLog = consumeAndOverridePerformanceLog(performanceLog);
+            log.info("Pipeline notified Kafka with {}", performanceLog);
         }
         return performanceLog;
     }
@@ -34,4 +38,5 @@ public class KafkaStage implements Stage {
         performanceLog = kafkaConsumerUtil.consumePerformanceLog();
         return performanceLog;
     }
+
 }

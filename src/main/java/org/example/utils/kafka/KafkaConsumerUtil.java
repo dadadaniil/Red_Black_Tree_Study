@@ -1,5 +1,6 @@
 package org.example.utils.kafka;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Properties;
 
+@Log4j2
 public class KafkaConsumerUtil {
 
     private final KafkaConsumer<String, String> consumer;
@@ -39,7 +41,7 @@ public class KafkaConsumerUtil {
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                 if (records.isEmpty()) {
-                    System.out.println("No records found, waiting...");
+                    log.info("No records found, waiting...");
                     continue;
                 }
 

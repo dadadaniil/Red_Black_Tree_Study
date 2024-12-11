@@ -23,8 +23,8 @@ public class DatabaseHandler {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(2, operationType);
-            stmt.setDouble(3, durationMs);
+            stmt.setString(1, operationType);
+            stmt.setDouble(2, durationMs);
 
             stmt.executeUpdate();
             log.info("Performance logged: Operation = {}, Duration = {} ms", operationType, durationMs);

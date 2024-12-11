@@ -7,7 +7,10 @@ import org.example.utils.PerformanceLog;
 import org.example.utils.TreeUtils;
 import org.example.utils.kafka.KafkaConsumerUtil;
 import org.example.utils.kafka.KafkaProducerUtil;
+import org.example.utils.pipeline.DatabaseStage;
+import org.example.utils.pipeline.KafkaStage;
 import org.example.utils.pipeline.OperationType;
+import org.example.utils.pipeline.Pipeline;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +20,29 @@ import static org.example.utils.TreeUtils.createTreeFromFile;
 public class Main {
     public static void main(String[] args) {
         log.info("Starting application");
+
+        String bootstrapServers = "localhost:9092";
+        String topic = "performance-log-topic";
+
+
+        Pipeline pipeline = new Pipeline()
+            .addStage(new DatabaseStage());
+
+
+
+        PerformanceLog performanceLog = PerformanceLog.builder()
+            .logId(1)
+            .operationType(OperationType.INSERT)
+            .operationDuration(123.45f)
+            .operationTimestamp(LocalDateTime.now())
+            .build();
+
+        PerformanceLog result = pipeline.execute(performanceLog);
+
+
+    }
+
+    private static void produceConsumeKafkaTest() {
 
         String bootstrapServers = "localhost:9092";
         String topic = "performance-log-topic";
