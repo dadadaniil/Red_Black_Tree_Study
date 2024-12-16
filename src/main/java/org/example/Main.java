@@ -8,27 +8,32 @@ import org.example.utils.TreeUtils;
 import org.example.utils.kafka.KafkaConsumerUtil;
 import org.example.utils.kafka.KafkaProducerUtil;
 import org.example.utils.pipeline.DatabaseStage;
-import org.example.utils.pipeline.KafkaStage;
 import org.example.utils.pipeline.OperationType;
 import org.example.utils.pipeline.Pipeline;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 import static org.example.utils.TreeUtils.createTreeFromFile;
 
+
 @Log4j2
-public class Main {
-    public static void main(String[] args) {
+@Component
+public class Main implements CommandLineRunner {
+
+
+    @Override
+    public void run(String... args) {
+        treeCreation();
+    }
+
+    private static void treeCreation() {
         log.info("Starting application");
-
-        String bootstrapServers = "localhost:9092";
-        String topic = "performance-log-topic";
-
 
         Pipeline pipeline = new Pipeline()
             .addStage(new DatabaseStage());
-
-
 
         PerformanceLog performanceLog = PerformanceLog.builder()
             .logId(1)
@@ -37,43 +42,7 @@ public class Main {
             .operationTimestamp(LocalDateTime.now())
             .build();
 
-        PerformanceLog result = pipeline.execute(performanceLog);
-
-
-    }
-
-    private static void produceConsumeKafkaTest() {
-
-        String bootstrapServers = "localhost:9092";
-        String topic = "performance-log-topic";
-
-        KafkaProducerUtil producer = new KafkaProducerUtil(bootstrapServers);
-
-        PerformanceLog performanceLog = PerformanceLog.builder()
-            .operationType(OperationType.INSERT)
-            .operationDuration(123.45f)
-            .operationTimestamp(LocalDateTime.now())
-            .build();
-
-        producer.sendEvent(topic, String.valueOf(performanceLog.getLogId()), performanceLog.toString());
-        log.info("Sent PerformanceLog: {}", performanceLog);
-
-        KafkaConsumerUtil consumer = new KafkaConsumerUtil(bootstrapServers, "performance-log-group", topic);
-
-        PerformanceLog receivedLog = consumer.consumePerformanceLog();
-        if (receivedLog != null) {
-            log.info("Received PerformanceLog: {}", receivedLog);
-        } else {
-            log.warn("No PerformanceLog received.");
-        }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            producer.close();
-            consumer.close();
-            log.info("Producer and consumer closed.");
-        }));
-
-        log.info("Application started");
+        pipeline.execute(performanceLog);
     }
 
     private static void createTree(String[] args) {

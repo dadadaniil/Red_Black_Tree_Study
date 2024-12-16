@@ -7,6 +7,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.example.utils.PerformanceLog;
 import org.example.utils.pipeline.OperationType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -14,11 +16,14 @@ import java.util.Collections;
 import java.util.Properties;
 
 @Log4j2
+@Component
 public class KafkaConsumerUtil {
 
     private final KafkaConsumer<String, String> consumer;
 
-    public KafkaConsumerUtil(String bootstrapServers, String groupId, String topic) {
+    public KafkaConsumerUtil(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers,
+                             @Value("${spring.kafka.consumer.group-id}") String groupId,
+                             @Value("${spring.kafka.consumer.topic}") String topic) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);

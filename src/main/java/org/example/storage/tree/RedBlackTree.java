@@ -12,14 +12,6 @@ public class RedBlackTree<T extends Comparable<T>> extends AbstractBalancedTree<
     public static final boolean RED = false;
     public static final boolean BLACK = true;
 
-    private final DatabaseHandler postgreSQLDatabaseHandler;
-    private final int treeId;
-
-    public RedBlackTree(DatabaseHandler databaseHandler, int treeId) {
-        this.postgreSQLDatabaseHandler = databaseHandler;
-        this.treeId = treeId;
-    }
-
     @Override
     public void insert(T value) {
         Node<T> newNode = new Node<>(value);

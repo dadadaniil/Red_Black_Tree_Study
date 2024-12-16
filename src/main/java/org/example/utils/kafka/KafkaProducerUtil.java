@@ -4,15 +4,18 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 import java.util.concurrent.Future;
 
+@Component
 public class KafkaProducerUtil {
 
     private KafkaProducer<String, String> producer;
 
-    public KafkaProducerUtil(String bootstrapServers) {
+    public KafkaProducerUtil(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.ACKS_CONFIG, "all");

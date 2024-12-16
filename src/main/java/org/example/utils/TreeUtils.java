@@ -19,7 +19,7 @@ public class TreeUtils {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static <T extends Comparable<T>> RedBlackTree<T> createTreeFromFile(String filePath) {
-    RedBlackTree<T> tree = new RedBlackTree<>(databaseHandler, 1);
+    RedBlackTree<T> tree = new RedBlackTree<>();
 
     try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
                 br.lines()
