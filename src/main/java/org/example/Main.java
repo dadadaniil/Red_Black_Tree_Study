@@ -5,12 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import org.example.storage.tree.RedBlackTree;
 import org.example.utils.PerformanceLog;
 import org.example.utils.TreeUtils;
-import org.example.utils.kafka.KafkaConsumerUtil;
-import org.example.utils.kafka.KafkaProducerUtil;
-import org.example.utils.pipeline.DatabaseStage;
 import org.example.utils.pipeline.OperationType;
-import org.example.utils.pipeline.Pipeline;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.utils.pipeline.PerformanceLogPipeline;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -23,17 +19,19 @@ import static org.example.utils.TreeUtils.createTreeFromFile;
 @Component
 public class Main implements CommandLineRunner {
 
+    private final PerformanceLogPipeline performanceLogPipeline;
+
+    public Main(PerformanceLogPipeline performanceLogPipeline) {
+        this.performanceLogPipeline = performanceLogPipeline;
+    }
 
     @Override
     public void run(String... args) {
         treeCreation();
     }
 
-    private static void treeCreation() {
+    private void treeCreation() {
         log.info("Starting application");
-
-        Pipeline pipeline = new Pipeline()
-            .addStage(new DatabaseStage());
 
         PerformanceLog performanceLog = PerformanceLog.builder()
             .logId(1)
@@ -41,8 +39,8 @@ public class Main implements CommandLineRunner {
             .operationDuration(123.45f)
             .operationTimestamp(LocalDateTime.now())
             .build();
+        performanceLogPipeline.execute(performanceLog);
 
-        pipeline.execute(performanceLog);
     }
 
     private static void createTree(String[] args) {
