@@ -1,4 +1,4 @@
-package org.example.utils;
+package org.example.utils.performance;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

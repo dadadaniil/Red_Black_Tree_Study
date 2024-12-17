@@ -3,7 +3,7 @@ package org.example;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.storage.tree.RedBlackTree;
-import org.example.utils.PerformanceLog;
+import org.example.utils.performance.PerformanceLog;
 import org.example.utils.TreeUtils;
 import org.example.utils.pipeline.OperationType;
 import org.example.utils.pipeline.PerformanceLogPipeline;
@@ -43,7 +43,7 @@ public class Main implements CommandLineRunner {
 
     }
 
-    private static void createTree(String[] args) {
+    private void createTree(String[] args) {
         String path = "data/tree_data.txt";
         if (args.length > 0) {
             path = args[0];

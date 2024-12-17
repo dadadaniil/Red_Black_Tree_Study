@@ -2,11 +2,9 @@ package org.example.utils.pipeline;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.utils.AppConfig;
-import org.example.utils.PerformanceLog;
+import org.example.utils.performance.PerformanceLog;
 import org.example.utils.kafka.KafkaConsumerUtil;
 import org.example.utils.kafka.KafkaProducerUtil;
-
-import java.util.function.Function;
 
 @Log4j2
 public class KafkaStage implements Stage {

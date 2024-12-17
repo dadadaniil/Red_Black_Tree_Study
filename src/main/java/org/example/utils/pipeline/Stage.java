@@ -1,6 +1,6 @@
 package org.example.utils.pipeline;
 
-import org.example.utils.PerformanceLog;
+import org.example.utils.performance.PerformanceLog;
 
 @FunctionalInterface
 public interface Stage {

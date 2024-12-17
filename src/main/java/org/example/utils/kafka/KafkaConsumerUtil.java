@@ -5,7 +5,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.example.utils.PerformanceLog;
+import org.example.utils.performance.PerformanceLog;
 import org.example.utils.pipeline.OperationType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

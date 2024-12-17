@@ -1,27 +1,30 @@
 package org.example.utils.spring;
 
+import lombok.extern.log4j.Log4j2;
 import org.example.utils.pipeline.DatabaseStage;
 import org.example.utils.pipeline.KafkaStage;
 import org.example.utils.pipeline.Stage;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.beans.factory.annotation.Value;
 
+@Log4j2
 @Configuration
 public class StageConfiguration {
 
-    @Value("${bootstrap.servers:localhost:9092}")
+    @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
 
     @Bean
-    @ConditionalOnProperty(name = "feature.kafka.enabled", havingValue = "true", matchIfMissing = false)
+    @ConditionalOnProperty(prefix = "feature", name = "kafka", havingValue = "true")
     public Stage kafkaStage() {
+        log.info("Creating KafkaStage with bootstrapServers {}", bootstrapServers);
         return new KafkaStage(bootstrapServers);
     }
 
     @Bean
-    @ConditionalOnProperty(name = "feature.database.enabled", havingValue = "true", matchIfMissing = false)
+    @ConditionalOnProperty(prefix = "feature", name = "database", havingValue = "true")
     public Stage databaseStage() {
         return new DatabaseStage();
     }

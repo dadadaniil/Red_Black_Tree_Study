@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: user
+    password: password
+    hikari:
+      initialization-fail-timeout: 0
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      group-id: performance-log-group
+      topic: performance-log-topic
+  feature:
+    database: true
+    kafka: true

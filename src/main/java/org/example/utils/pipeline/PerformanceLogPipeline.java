@@ -1,6 +1,6 @@
 package org.example.utils.pipeline;
 
-import org.example.utils.PerformanceLog;
+import org.example.utils.performance.PerformanceLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,6 @@ public class PerformanceLogPipeline {
         stages.add(stage);
         return this;
     }
-
 
     public PerformanceLog execute(PerformanceLog performanceLog) {
         for (Stage stage : stages) {

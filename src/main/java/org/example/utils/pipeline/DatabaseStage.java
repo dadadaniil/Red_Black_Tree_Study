@@ -2,7 +2,7 @@ package org.example.utils.pipeline;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.utils.AppConfig;
-import org.example.utils.PerformanceLog;
+import org.example.utils.performance.PerformanceLog;
 import org.example.utils.database.DatabaseHandler;
 
 @Log4j2
