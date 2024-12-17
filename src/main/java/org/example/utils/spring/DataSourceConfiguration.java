@@ -1,5 +1,6 @@
 package org.example.utils.spring;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +10,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+@Log4j2
 @Configuration
-public class DataSourceConfig {
+public class DataSourceConfiguration {
 
     @Value("${spring.datasource.url}")
     private String url;
@@ -35,6 +37,7 @@ public class DataSourceConfig {
             }
         }
 
+        log.info("Application was run with password {}", password);
         return dataSource;
     }
 }

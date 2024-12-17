@@ -48,14 +48,12 @@ test {
 }
 
 application {
-    mainClass = 'org.example.Main'
+    mainClass = 'org.example.Application'
 }
 
 tasks.register('runWithPath', JavaExec) {
     group = 'application'
     description = 'Run the application with a required path parameter'
-
-    mainClass = 'org.example.Main'
 
     doFirst {
         if (!project.hasProperty('treePath')) {
@@ -69,4 +67,8 @@ tasks.register('runWithPath', JavaExec) {
     }
 
     classpath = sourceSets.main.runtimeClasspath
+}
+
+bootRun {
+    systemProperties = System.properties
 }
